@@ -1,0 +1,561 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#45172d">
+<title>Share Your Experience | Growvia</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --wine:#45172d;
+  --wine2:#702c49;
+  --gold:#c9a76a;
+  --gold-light:#ead9b7;
+  --cream:#faf6ef;
+  --paper:#fffdf9;
+  --ink:#34242b;
+  --muted:#887a7c;
+  --line:#eee5da;
+  --shadow:0 24px 70px rgba(54,24,39,.10);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:'DM Sans',sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(ellipse at 10% 10%,rgba(201,167,106,.14),transparent 35%),
+    radial-gradient(ellipse at 90% 80%,rgba(112,44,73,.09),transparent 38%),
+    var(--cream);
+}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.page-shell{max-width:1120px;margin:auto;padding:28px 22px 55px}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 4px 22px;
+}
+.brand-mini{
+  color:var(--wine);font-size:13px;font-weight:700;
+  letter-spacing:3px;text-transform:uppercase;
+}
+.powered{font-size:10px;color:#a3948b;letter-spacing:2px}
+.main-card{
+  background:var(--paper);border:1px solid rgba(201,167,106,.34);
+  border-radius:26px;overflow:hidden;box-shadow:var(--shadow);
+}
+.hero{
+  position:relative;text-align:center;padding:60px 25px 46px;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(255,255,255,.14),transparent 45%),
+    linear-gradient(135deg,#351326,#542039 55%,#6c344d);
+  color:white;overflow:hidden;
+}
+.hero:before,.hero:after{
+  content:"";position:absolute;width:230px;height:230px;
+  border:1px solid rgba(234,217,183,.20);border-radius:50%;
+}
+.hero:before{top:-155px;left:-90px}
+.hero:after{bottom:-175px;right:-80px}
+.hero-inner{position:relative;z-index:1}
+.logo-frame{
+  width:94px;height:94px;border-radius:50%;
+  border:1px solid var(--gold);padding:5px;
+  margin:0 auto 18px;background:rgba(255,255,255,.08);
+}
+.logo-frame img{width:100%;height:100%;object-fit:contain;border-radius:50%}
+.logo-placeholder{
+  width:100%;height:100%;display:grid;place-items:center;
+  font-family:'Cormorant Garamond',serif;font-size:37px;color:var(--gold-light);
+}
+.eyebrow{
+  font-size:10px;letter-spacing:4px;text-transform:uppercase;
+  color:var(--gold-light);margin-bottom:10px;
+}
+.business-name{
+  font:600 clamp(34px,6vw,54px)/1.05 'Cormorant Garamond',serif;
+  margin:0;color:#fff;
+}
+.hero-line{width:56px;height:1px;background:var(--gold);margin:20px auto}
+.hero-description{
+  max-width:480px;margin:auto;color:#eadde1;
+  font-size:13px;line-height:1.9;
+}
+.business-meta{
+  margin-top:20px;color:#e9d8dd;font-size:11px;line-height:1.8;
+}
+.content{max-width:720px;margin:auto;padding:42px 35px 45px}
+.section-heading{text-align:center;margin-bottom:28px}
+.kicker{
+  color:#a07b48;font-size:10px;letter-spacing:3px;
+  text-transform:uppercase;font-weight:700;
+}
+.section-heading h2{
+  font:600 clamp(31px,5vw,42px)/1.1 'Cormorant Garamond',serif;
+  color:var(--wine);margin:10px 0;
+}
+.section-heading p{color:var(--muted);font-size:12px;line-height:1.8;margin:0}
+.form-section{
+  padding:24px;background:#fff;border:1px solid var(--line);
+  border-radius:17px;margin-top:17px;
+}
+.field-label{
+  display:block;color:var(--wine);font-size:11px;
+  letter-spacing:1px;font-weight:700;margin-bottom:11px;
+}
+.optional{color:#a99b99;font-weight:400;letter-spacing:0}
+input,textarea,select{
+  width:100%;border:1px solid #e8ded5;border-radius:10px;
+  background:#fffdfa;padding:14px 15px;color:var(--ink);
+  outline:none;font-size:13px;transition:.2s;
+}
+input:focus,textarea:focus,select:focus{
+  border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,167,106,.13);
+}
+textarea{min-height:125px;resize:vertical;line-height:1.8}
+.stars{
+  display:flex;justify-content:center;gap:13px;
+  padding:8px 0 3px;
+}
+.star{
+  border:0;background:transparent;padding:0;
+  font-size:43px;color:#e5ded6;transition:transform .2s,color .2s;
+}
+.star:hover{transform:scale(1.16)}
+.star.active{color:var(--gold);text-shadow:0 4px 12px rgba(201,167,106,.24)}
+.rating-text{text-align:center;color:#9a8587;font-size:11px;min-height:19px}
+.suggestions{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;
+}
+.suggestion{
+  text-align:left;border:1px solid #eadfce;background:#fffaf2;
+  border-radius:11px;padding:13px;color:#70543b;
+  font-size:11px;line-height:1.6;transition:.2s;
+}
+.suggestion:hover{border-color:var(--gold);background:#f8f0e2}
+.suggestion small{
+  display:block;color:#aa8b5b;font-weight:700;
+  font-size:9px;letter-spacing:1px;margin-bottom:5px;
+}
+.helper{font-size:10px;color:#a09291;line-height:1.7;margin-top:9px}
+.primary-btn{
+  width:100%;padding:16px;border:1px solid var(--gold);
+  border-radius:10px;background:linear-gradient(110deg,#42162c,#682a46);
+  color:white;font-size:11px;font-weight:700;letter-spacing:2px;
+  box-shadow:0 8px 22px rgba(69,23,45,.15);transition:.2s;
+}
+.primary-btn:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(69,23,45,.22)}
+.primary-btn:disabled{opacity:.6;cursor:wait;transform:none}
+.divider{
+  display:flex;align-items:center;gap:14px;
+  color:#ad987d;font-size:10px;letter-spacing:2px;margin:28px 0;
+}
+.divider:before,.divider:after{content:"";height:1px;background:var(--line);flex:1}
+.google-card{
+  border:1px solid #e8dfd4;border-radius:16px;padding:23px;
+  text-align:center;background:linear-gradient(145deg,#fff,#fbf7f0);
+}
+.google-symbol{
+  font-size:24px;font-weight:700;
+  background:conic-gradient(#4285f4 0 25%,#34a853 25% 50%,#fbbc05 50% 75%,#ea4335 75%);
+  background-clip:text;-webkit-background-clip:text;color:transparent;
+}
+.google-card h3{
+  font:600 25px 'Cormorant Garamond',serif;color:var(--wine);margin:8px 0;
+}
+.google-card p{font-size:11px;color:var(--muted);line-height:1.7}
+.google-btn{
+  display:inline-block;text-decoration:none;margin-top:8px;
+  background:#fff;border:1px solid #d8c49f;color:var(--wine);
+  border-radius:9px;padding:13px 22px;font-size:10px;
+  font-weight:700;letter-spacing:1px;transition:.2s;
+}
+.google-btn:hover{background:#f7eddd;transform:translateY(-2px)}
+.status{
+  display:none;padding:13px 15px;border-radius:10px;
+  margin-bottom:15px;font-size:12px;line-height:1.6;
+}
+.status.error{display:block;background:#fff0ef;color:#a33232}
+.status.success{display:block;background:#edf7ef;color:#28623c}
+.footer{text-align:center;padding:25px 10px 0;color:#a09291;font-size:10px;line-height:2}
+.footer strong{color:var(--wine);letter-spacing:2px}
+.hidden{display:none!important}
+@media(max-width:600px){
+  .page-shell{padding:10px 10px 30px}
+  .topbar{padding:12px 5px 16px}
+  .main-card{border-radius:19px}
+  .hero{padding:42px 17px 35px}
+  .content{padding:29px 15px 30px}
+  .form-section{padding:18px 15px}
+  .star{font-size:39px}
+  .suggestions{grid-template-columns:1fr}
+  .powered{font-size:9px}
+}
+</style>
+</head>
+
+<body>
+<div class="page-shell">
+  <div class="topbar">
+    <div class="brand-mini">GROWVIA</div>
+    <div class="powered">A BETTER CUSTOMER EXPERIENCE</div>
+  </div>
+
+  <main class="main-card">
+    <header class="hero">
+      <div class="hero-inner">
+        <div class="logo-frame" id="logoFrame">
+          <div class="logo-placeholder" id="logoPlaceholder">✦</div>
+          <img id="businessLogo" class="hidden" alt="Business logo">
+        </div>
+        <div class="eyebrow" id="businessCategory">YOUR EXPERIENCE MATTERS</div>
+        <h1 class="business-name" id="businessName">Welcome</h1>
+        <div class="hero-line"></div>
+        <p class="hero-description" id="description">
+          We believe every experience deserves to be heard.
+          Thank you for being with us.
+        </p>
+        <div class="business-meta" id="businessMeta"></div>
+      </div>
+    </header>
+
+    <div class="content">
+      <div id="pageMessage" class="section-heading">
+        <h2>Loading your experience...</h2>
+        <p>Please wait a moment.</p>
+      </div>
+
+      <section id="pageContent" class="hidden">
+        <div class="section-heading">
+          <div class="kicker">A MOMENT TO SHARE</div>
+          <h2 id="pageTitle">Your Experience, Your Story</h2>
+          <p id="welcomeMessage">Your honest feedback helps us grow.</p>
+        </div>
+
+        <div id="statusMessage" class="status"></div>
+
+        <form id="feedbackForm">
+          <div class="form-section">
+            <label class="field-label" for="customerName">
+              YOUR NAME <span class="optional">(OPTIONAL)</span>
+            </label>
+            <input id="customerName" type="text" maxlength="100"
+              placeholder="How may we address you?">
+          </div>
+
+          <div class="form-section">
+            <label class="field-label">HOW WAS YOUR EXPERIENCE?</label>
+            <div class="stars" id="stars">
+              <button class="star" type="button" data-rating="1" aria-label="1 star">★</button>
+              <button class="star" type="button" data-rating="2" aria-label="2 stars">★</button>
+              <button class="star" type="button" data-rating="3" aria-label="3 stars">★</button>
+              <button class="star" type="button" data-rating="4" aria-label="4 stars">★</button>
+              <button class="star" type="button" data-rating="5" aria-label="5 stars">★</button>
+            </div>
+            <div class="rating-text" id="ratingNote">Tap a star to rate your experience</div>
+          </div>
+
+          <div class="form-section">
+            <label class="field-label" for="language">CHOOSE YOUR LANGUAGE</label>
+            <select id="language">
+              <option value="Hinglish">Hinglish</option>
+              <option value="Hindi">Hindi</option>
+              <option value="English">English</option>
+            </select>
+          </div>
+
+          <div class="form-section">
+            <label class="field-label">NEED A LITTLE INSPIRATION?</label>
+            <div class="suggestions" id="templateList">
+              <div class="helper">Loading ideas...</div>
+            </div>
+            <div class="helper">
+              Choose an idea only if it reflects your real experience.
+              You can edit it in your own words.
+            </div>
+          </div>
+
+          <div class="form-section">
+            <label class="field-label" for="feedback">
+              TELL US YOUR STORY
+            </label>
+            <textarea id="feedback" minlength="10" maxlength="2000"
+              required placeholder="Share what you genuinely liked or what we could improve..."></textarea>
+            <div class="helper">Minimum 10 characters. Maximum 2000 characters.</div>
+          </div>
+
+          <button class="primary-btn" id="submitButton" type="submit">
+            SUBMIT PRIVATE FEEDBACK
+          </button>
+        </form>
+
+        <div class="divider">OR SHARE PUBLICLY</div>
+
+        <div class="google-card">
+          <div class="google-symbol">G</div>
+          <h3>Your Voice Can Inspire Others</h3>
+          <p>
+            Share your genuine experience on Google and help others
+            discover this business.
+          </p>
+          <a id="googleReviewButton" class="google-btn"
+             href="#" target="_blank" rel="noopener noreferrer">
+            WRITE A GOOGLE REVIEW ↗
+          </a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    A LITTLE FEEDBACK MAKES A BIG DIFFERENCE.<br>
+    <strong>POWERED BY GROWVIA</strong>
+  </footer>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://zfnvxfztxhzxwwvkapys.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_X_Li2kPRPtqU7MeLqOSUpg_iCGLLpi1';
+
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const slug = new URLSearchParams(location.search).get('slug');
+
+let selectedRating = 0;
+let templateCategory = '';
+
+const pageContent = document.getElementById('pageContent');
+const pageMessage = document.getElementById('pageMessage');
+const statusMessage = document.getElementById('statusMessage');
+
+function showPageMessage(message) {
+  pageMessage.replaceChildren();
+  const title = document.createElement('h2');
+  title.textContent = 'Review Page';
+  const text = document.createElement('p');
+  text.textContent = message;
+  pageMessage.append(title, text);
+  pageMessage.classList.remove('hidden');
+}
+
+function showStatus(message, type) {
+  statusMessage.textContent = message;
+  statusMessage.className = 'status ' + type;
+}
+
+function getTemplateCategory(category) {
+  const value = (category || '').toLowerCase();
+
+  if (value.includes('salon') || value.includes('beauty') ||
+      value.includes('parlour') || value.includes('parlor')) {
+    return 'Salon & Beauty';
+  }
+  if (value.includes('restaurant') || value.includes('cafe')) return 'Restaurant & Cafe';
+  if (value.includes('clinic') || value.includes('health')) return 'Clinic & Healthcare';
+  if (value.includes('gym') || value.includes('fitness')) return 'Gym & Fitness';
+  if (value.includes('hotel') || value.includes('travel')) return 'Hotel & Travel';
+  if (value.includes('retail') || value.includes('shopping') || value.includes('shop')) return 'Retail & Shopping';
+  if (value.includes('education') || value.includes('coaching')) return 'Education & Coaching';
+  if (value.includes('automobile') || value.includes('auto')) return 'Automobile Services';
+
+  return category;
+}
+
+async function loadPage() {
+  if (!slug) {
+    showPageMessage('This review link is incomplete.');
+    return;
+  }
+
+  try {
+    const { data, error } = await db.rpc('get_public_review_page', {
+      p_slug: slug
+    });
+
+    if (error) throw error;
+
+    if (!data) {
+      showPageMessage('This Review Page is not published yet.');
+      return;
+    }
+
+    document.documentElement.style.setProperty(
+      '--wine',
+      data.theme_color || '#45172d'
+    );
+
+    document.getElementById('businessName').textContent =
+      data.business_name || 'Our Business';
+
+    document.getElementById('businessCategory').textContent =
+      data.category || 'YOUR EXPERIENCE MATTERS';
+
+    document.getElementById('description').textContent =
+      data.description || 'We believe every experience deserves to be heard. Thank you for being with us.';
+
+    document.getElementById('pageTitle').textContent =
+      data.page_title || 'Your Experience, Your Story';
+
+    document.getElementById('welcomeMessage').textContent =
+      data.welcome_message || 'Your honest feedback helps us grow.';
+
+    const logo = document.getElementById('businessLogo');
+    if (data.logo_url) {
+      logo.src = data.logo_url;
+      logo.classList.remove('hidden');
+      document.getElementById('logoPlaceholder').classList.add('hidden');
+    }
+
+    const meta = [];
+    if (data.address) meta.push(data.address);
+    if (data.phone) meta.push(data.phone);
+    document.getElementById('businessMeta').textContent = meta.join('  •  ');
+
+    const googleButton = document.getElementById('googleReviewButton');
+    if (data.google_review_url) {
+      googleButton.href = data.google_review_url;
+    } else {
+      googleButton.classList.add('hidden');
+    }
+
+    templateCategory = getTemplateCategory(data.category);
+
+    pageMessage.classList.add('hidden');
+    pageContent.classList.remove('hidden');
+
+    await loadTemplates();
+  } catch (error) {
+    console.error(error);
+    showPageMessage('Unable to load this page. Please try again later.');
+  }
+}
+
+async function loadTemplates() {
+  const list = document.getElementById('templateList');
+  list.replaceChildren();
+
+  const language = document.getElementById('language').value;
+
+  const { data, error } = await db
+    .from('review_templates')
+    .select('template_text')
+    .eq('category', templateCategory)
+    .eq('language', language)
+    .eq('is_active', true)
+    .limit(5);
+
+  if (error || !data || data.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'helper';
+    empty.textContent = 'No suggestions available right now. You can write your own feedback.';
+    list.appendChild(empty);
+    return;
+  }
+
+  data.forEach((item, index) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'suggestion';
+
+    const number = document.createElement('small');
+    number.textContent = 'IDEA ' + String(index + 1).padStart(2, '0');
+
+    const preview = document.createElement('span');
+    preview.textContent = item.template_text;
+
+    button.append(number, preview);
+
+    button.addEventListener('click', () => {
+      document.getElementById('feedback').value = item.template_text;
+      document.getElementById('feedback').focus();
+    });
+
+    list.appendChild(button);
+  });
+}
+
+document.getElementById('language').addEventListener('change', loadTemplates);
+
+document.querySelectorAll('.star').forEach(button => {
+  button.addEventListener('click', () => {
+    selectedRating = Number(button.dataset.rating);
+
+    document.querySelectorAll('.star').forEach(star => {
+      star.classList.toggle(
+        'active',
+        Number(star.dataset.rating) <= selectedRating
+      );
+    });
+
+    document.getElementById('ratingNote').textContent =
+      selectedRating + ' out of 5 stars selected';
+  });
+});
+
+document.getElementById('feedbackForm').addEventListener('submit', async event => {
+  event.preventDefault();
+
+  if (!selectedRating) {
+    showStatus('Please select a star rating before submitting.', 'error');
+    return;
+  }
+
+  const customerName = document.getElementById('customerName').value.trim();
+  const feedback = document.getElementById('feedback').value.trim();
+  const language = document.getElementById('language').value;
+  const submitButton = document.getElementById('submitButton');
+
+  if (feedback.length < 10 || feedback.length > 2000) {
+    showStatus('Feedback must be between 10 and 2000 characters.', 'error');
+    return;
+  }
+
+  submitButton.disabled = true;
+  submitButton.textContent = 'SUBMITTING...';
+
+  try {
+    const { data, error } = await db.rpc('submit_public_feedback', {
+      p_slug: slug,
+      p_customer_name: customerName || null,
+      p_rating: selectedRating,
+      p_feedback: feedback,
+      p_language: language
+    });
+
+    if (error) throw error;
+
+    if (!data || !data.success) {
+      showStatus(data?.message || 'Feedback could not be submitted.', 'error');
+      return;
+    }
+
+    showStatus('Thank you! Your feedback has been submitted successfully.', 'success');
+
+    document.getElementById('feedbackForm').reset();
+    selectedRating = 0;
+
+    document.querySelectorAll('.star').forEach(star => {
+      star.classList.remove('active');
+    });
+
+    document.getElementById('ratingNote').textContent =
+      'Tap a star to rate your experience';
+
+  } catch (error) {
+    console.error(error);
+    showStatus('Something went wrong. Please try again later.', 'error');
+  } finally {
+    submitButton.disabled = false;
+    submitButton.textContent = 'SUBMIT PRIVATE FEEDBACK';
+  }
+});
+
+loadPage();
+</script>
+</body>
+</html>
