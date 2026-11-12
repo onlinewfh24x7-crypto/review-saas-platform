@@ -1,0 +1,174 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Growvia | Business Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f3f6fc;font-family:Arial,sans-serif;color:#17233b}
+header{background:#071b49;color:white;padding:18px 6%;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:26px;font-weight:bold}
+.logo span{color:#f47721}
+button{border:0;border-radius:8px;padding:12px 18px;cursor:pointer;font-weight:bold}
+.logout{background:white;color:#071b49}
+main{max-width:850px;margin:40px auto;padding:0 18px}
+.card{background:white;padding:28px;border-radius:16px;box-shadow:0 8px 30px #071b4912;margin-bottom:22px}
+h1{color:#071b49;margin-top:0}
+label{display:block;font-weight:bold;margin:17px 0 7px}
+input,select{width:100%;padding:13px;border:1px solid #d6deea;border-radius:8px;font-size:15px;background:white}
+.save{width:100%;margin-top:22px;background:#f47721;color:white;font-size:16px}
+#message{margin-top:16px;line-height:1.5}
+.business{background:#f3f6fc;padding:16px;border-radius:10px;margin-top:15px}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">GRO<span>VIA</span></div>
+  <button class="logout" id="logoutBtn">Logout</button>
+</header>
+
+<main>
+  <section class="card">
+    <h1>Business Dashboard</h1>
+    <p>Welcome to Growvia! अपना Business Profile बनाएँ।</p>
+    <div id="accountInfo">Loading account...</div>
+  </section>
+
+  <section class="card">
+    <h2>Business Profile</h2>
+    <form id="businessForm">
+      <label>Business Name</label>
+      <input id="businessName" type="text" placeholder="जैसे Charming Beauty Care" required>
+
+      <label>Business Category</label>
+      <select id="category" required>
+        <option value="">Select Category</option>
+        <option>Salon & Beauty</option>
+        <option>Restaurant & Cafe</option>
+        <option>Clinic & Healthcare</option>
+        <option>Gym & Fitness</option>
+        <option>Hotel & Travel</option>
+        <option>Retail & Shopping</option>
+        <option>Education & Coaching</option>
+        <option>Automobile Services</option>
+        <option>Other</option>
+      </select>
+
+      <label>Mobile Number</label>
+      <input id="phone" type="tel" placeholder="Enter mobile number" required>
+
+      <button class="save" id="saveBtn" type="submit">Save Business</button>
+    </form>
+    <div id="message" role="status"></div>
+  </section>
+
+  <section class="card">
+    <h2>Your Business</h2>
+    <div id="businessDetails">Loading...</div>
+  </section>
+</main>
+
+<script>
+const SUPABASE_URL = "https://zfnvxfztxhzxwwvkapys.supabase.co";
+const SUPABASE_KEY = "sb_publishable_X_Li2kPRPtqU7MeLqOSUpg_iCGLLpi1";
+
+const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+
+async function initDashboard() {
+  const { data, error } = await client.auth.getUser();
+
+  if (error || !data.user) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  currentUser = data.user;
+  document.getElementById("accountInfo").textContent =
+    "Logged in: " + currentUser.email;
+
+  await loadBusiness();
+}
+
+async function loadBusiness() {
+  const details = document.getElementById("businessDetails");
+
+  const { data, error } = await client
+    .from("businesses")
+    .select("id, business_name, category, phone")
+    .eq("owner_user_id", currentUser.id)
+    .limit(1);
+
+  if (error) {
+    details.textContent = "Error: " + error.message;
+    return;
+  }
+
+  if (data.length > 0) {
+    const business = data[0];
+    details.innerHTML = "";
+
+    const box = document.createElement("div");
+    box.className = "business";
+
+    const name = document.createElement("h3");
+    name.textContent = business.business_name;
+
+    const category = document.createElement("p");
+    category.textContent = "Category: " + business.category;
+
+    const phone = document.createElement("p");
+    phone.textContent = "Phone: " + business.phone;
+
+    box.append(name, category, phone);
+    details.appendChild(box);
+
+    document.getElementById("businessForm").classList.add("hidden");
+  } else {
+    details.textContent = "अभी कोई Business Profile नहीं बना है।";
+  }
+}
+
+document.getElementById("businessForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const message = document.getElementById("message");
+  const saveBtn = document.getElementById("saveBtn");
+
+  saveBtn.disabled = true;
+  message.textContent = "Saving...";
+
+  const business = {
+    owner_user_id: currentUser.id,
+    business_name: document.getElementById("businessName").value.trim(),
+    category: document.getElementById("category").value,
+    phone: document.getElementById("phone").value.trim()
+  };
+
+  const { error } = await client.from("businesses").insert(business);
+
+  if (error) {
+    message.textContent = "Error: " + error.message;
+  } else {
+    message.textContent = "Business Profile saved successfully!";
+    document.getElementById("businessForm").reset();
+    await loadBusiness();
+  }
+
+  saveBtn.disabled = false;
+});
+
+document.getElementById("logoutBtn").addEventListener("click", async () => {
+  await client.auth.signOut();
+  window.location.href = "index.html";
+});
+
+initDashboard();
+</script>
+</body>
+</html>
