@@ -349,6 +349,57 @@ input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px #1257B812
       </div>
     </div>
   </section>
+  
+<!-- REVIEW PAGE MANAGEMENT -->
+<div class="section-title" id="reviewPage">
+  <h2>Review Page Management</h2>
+  <span>Customize your customer review page</span>
+</div>
+
+<section class="panel" id="reviewPagePanel">
+  <h3>Customize Review Page</h3>
+  <p class="sub">Manage how customers see your review page.</p>
+
+  <form id="reviewPageForm">
+    <div class="form-group">
+      <label for="pageTitle">REVIEW PAGE TITLE</label>
+      <input id="pageTitle" type="text" maxlength="100"
+        placeholder="Your Experience Matters" required>
+    </div>
+
+    <div class="form-group">
+      <label for="welcomeMessage">WELCOME MESSAGE</label>
+      <input id="welcomeMessage" type="text" maxlength="300"
+        placeholder="Thank you for choosing us." required>
+    </div>
+
+    <div class="form-group">
+      <label for="googleReviewUrl">GOOGLE REVIEW LINK</label>
+      <input id="googleReviewUrl" type="url"
+        placeholder="https://g.page/r/your-review-link">
+    </div>
+
+    <div class="form-group">
+      <label for="themeColor">PAGE THEME COLOR</label>
+      <input id="themeColor" type="color" value="#6B1F3A">
+    </div>
+
+    <div class="form-group">
+      <label>
+        <input id="pagePublished" type="checkbox"
+          style="width:auto;height:auto;margin-right:8px">
+        Publish Review Page
+      </label>
+    </div>
+
+    <button class="primary-btn" id="saveReviewPageBtn" type="submit">
+      Save Review Page Settings →
+    </button>
+
+    <div class="status" id="reviewPageMessage" role="status"></div>
+  </form>
+</section>
+<!-- END REVIEW PAGE MANAGEMENT -->
 
   <div class="footer">© 2026 Growvia · Grow Your Business. Build Your Trust.</div>
 </main>
