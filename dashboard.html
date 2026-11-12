@@ -134,6 +134,58 @@ input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px #1257B812
   .business-switcher{align-items:stretch;flex-direction:column}
   .add-business-btn{width:100%}
 }
+
+/* Customer Reviews */
+.reviews-section{margin-top:28px}
+.review-summary{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;margin-bottom:16px
+}
+.review-count{
+  background:#F7F9FD;border:1px solid var(--border);
+  border-radius:10px;padding:15px
+}
+.review-count strong{
+  display:block;font:700 21px 'Poppins',sans-serif;
+  color:var(--navy);margin-bottom:4px
+}
+.review-count span{font-size:10px;color:var(--muted)}
+.review-card{
+  border:1px solid var(--border);border-radius:10px;
+  padding:15px;margin-bottom:12px;background:#fff
+}
+.review-card-top{
+  display:flex;justify-content:space-between;
+  gap:10px;align-items:center;margin-bottom:9px
+}
+.review-customer{font-weight:700;font-size:12px;color:var(--navy)}
+.review-stars{color:#F5A623;font-size:14px;letter-spacing:2px}
+.review-text{font-size:12px;color:#536178;line-height:1.7;margin:8px 0}
+.review-meta{font-size:10px;color:var(--muted)}
+.review-status{
+  display:inline-block;padding:5px 8px;border-radius:5px;
+  font-size:9px;font-weight:700;text-transform:uppercase
+}
+.review-status.pending{background:#FFF4DB;color:#A66A00}
+.review-status.approved{background:#E5F7EF;color:#12835D}
+.review-status.rejected{background:#FDEBEC;color:#C33D48}
+.review-actions{display:flex;gap:8px;margin-top:12px}
+.review-actions button{
+  border:0;border-radius:6px;padding:8px 12px;
+  font-size:10px;font-weight:700
+}
+.approve-btn{background:#E5F7EF;color:#12835D}
+.reject-btn{background:#FDEBEC;color:#C33D48}
+.review-empty{
+  padding:22px;background:#F7F9FD;border-radius:10px;
+  color:var(--muted);font-size:12px;text-align:center
+}
+@media(max-width:650px){
+  .review-summary{grid-template-columns:1fr}
+  .review-card-top{align-items:flex-start;flex-direction:column}
+}
+
 </style>
 </head>
 
