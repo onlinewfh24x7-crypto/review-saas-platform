@@ -402,6 +402,114 @@ function categoryLabel(value) {
   return labels[categoryValue(value)] || "Other / General Business";
 }
 
+async function loadReviews(selectedBusinessId) {
+  const list = $("reviewsList");
+  list.textContent = "Loading reviews...";
+
+  const { data, error } = await client
+    .from("reviews")
+    .select("id, customer_name, rating, feedback, language, status, created_at")
+    .eq("business_id", selectedBusinessId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    list.textContent = "Could not load reviews: " + error.message;
+    return;
+  }
+
+  const reviews = data || [];
+  const pending = reviews.filter(r => r.status === "pending").length;
+  const average = reviews.length
+    ? reviews.reduce((sum, r) => sum + Number(r.rating), 0) / reviews.length
+    : 0;
+
+  $("totalReviews").textContent = reviews.length;
+  $("pendingReviews").textContent = pending;
+  $("averageRating").textContent = average.toFixed(1) + " ★";
+
+  list.replaceChildren();
+
+  if (!reviews.length) {
+    const empty = document.createElement("div");
+    empty.className = "review-empty";
+    empty.textContent = "No customer reviews received yet.";
+    list.append(empty);
+    return;
+  }
+
+  reviews.forEach(review => {
+    const card = document.createElement("div");
+    card.className = "review-card";
+
+    const top = document.createElement("div");
+    top.className = "review-card-top";
+
+    const customer = document.createElement("div");
+    customer.className = "review-customer";
+    customer.textContent = review.customer_name || "Anonymous Customer";
+
+    const stars = document.createElement("div");
+    stars.className = "review-stars";
+    stars.textContent = "★".repeat(review.rating) + "☆".repeat(5 - review.rating);
+
+    top.append(customer, stars);
+
+    const status = document.createElement("span");
+    status.className = "review-status " + review.status;
+    status.textContent = review.status;
+
+    const feedback = document.createElement("p");
+    feedback.className = "review-text";
+    feedback.textContent = review.feedback || "No written feedback.";
+
+    const meta = document.createElement("div");
+    meta.className = "review-meta";
+    const date = review.created_at
+      ? new Date(review.created_at).toLocaleDateString("en-IN")
+      : "Date unavailable";
+    meta.textContent = (review.language || "Language not specified") + " · " + date;
+
+    card.append(top, status, feedback, meta);
+
+    if (review.status === "pending") {
+      const actions = document.createElement("div");
+      actions.className = "review-actions";
+
+      const approve = document.createElement("button");
+      approve.className = "approve-btn";
+      approve.textContent = "✓ Approve";
+      approve.addEventListener("click", () => updateReviewStatus(review.id, "approved"));
+
+      const reject = document.createElement("button");
+      reject.className = "reject-btn";
+      reject.textContent = "✕ Reject";
+      reject.addEventListener("click", () => updateReviewStatus(review.id, "rejected"));
+
+      actions.append(approve, reject);
+      card.append(actions);
+    }
+
+    list.append(card);
+  });
+}
+
+async function updateReviewStatus(reviewId, newStatus) {
+  if (!businessId) return;
+
+  const { error } = await client
+    .from("reviews")
+    .update({ status: newStatus })
+    .eq("id", reviewId)
+    .eq("business_id", businessId);
+
+  if (error) {
+    alert("Could not update review: " + error.message);
+    return;
+  }
+
+  await loadReviews(businessId);
+}
+
 function renderBusinessSelector() {
   const selector = $("businessSelector");
   selector.replaceChildren();
