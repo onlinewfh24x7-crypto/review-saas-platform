@@ -108,6 +108,7 @@ input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px #1257B812
   color:white;font-size:11px;font-weight:800;white-space:nowrap;
 }
 .mode-label{font-size:10px;color:var(--muted);margin-bottom:10px}
+
 @media(max-width:900px){
   .sidebar{width:215px}
   .main{margin-left:215px}
@@ -168,8 +169,8 @@ input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px #1257B812
   font-size:9px;font-weight:700;text-transform:uppercase
 }
 .review-status.pending{background:#FFF4DB;color:#A66A00}
-.review-status.approved{background:#E5F7EF;color:#12835D}
-.review-status.rejected{background:#FDEBEC;color:#C33D48}
+.review-status.published{background:#E5F7EF;color:#12835D}
+.review-status.archived{background:#FDEBEC;color:#C33D48}
 .review-actions{display:flex;gap:8px;margin-top:12px}
 .review-actions button{
   border:0;border-radius:6px;padding:8px 12px;
@@ -185,7 +186,6 @@ input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px #1257B812
   .review-summary{grid-template-columns:1fr}
   .review-card-top{align-items:flex-start;flex-direction:column}
 }
-
 </style>
 </head>
 
@@ -200,7 +200,7 @@ input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px #1257B812
     <div class="nav-label">GROW YOUR BUSINESS</div>
     <a class="nav-item disabled" href="javascript:void(0)"><span class="ico">✧</span> Review Page <span class="soon">SOON</span></a>
     <a class="nav-item disabled" href="javascript:void(0)"><span class="ico">▦</span> QR Code <span class="soon">SOON</span></a>
-    <a class="nav-item disabled" href="javascript:void(0)"><span class="ico">▤</span> Reviews <span class="soon">SOON</span></a>
+    <a class="nav-item" href="#reviews"><span class="ico">▤</span> Reviews</a>
     <a class="nav-item disabled" href="javascript:void(0)"><span class="ico">◷</span> Analytics <span class="soon">SOON</span></a>
     <div class="nav-label">ACCOUNT</div>
     <a class="nav-item disabled" href="javascript:void(0)"><span class="ico">⚙</span> Settings <span class="soon">SOON</span></a>
@@ -320,35 +320,35 @@ input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px #1257B812
     </div>
   </section>
 
-<div class="section-title" id="reviews">
-  <h2>Customer Reviews</h2>
-  <span>Manage customer feedback</span>
-</div>
-
-<section class="reviews-section">
-  <div class="review-summary">
-    <div class="review-count">
-      <strong id="totalReviews">0</strong>
-      <span>Total Reviews</span>
-    </div>
-    <div class="review-count">
-      <strong id="pendingReviews">0</strong>
-      <span>Pending Reviews</span>
-    </div>
-    <div class="review-count">
-      <strong id="averageRating">0.0 ★</strong>
-      <span>Average Rating</span>
-    </div>
+  <div class="section-title" id="reviews">
+    <h2>Customer Reviews</h2>
+    <span>Manage customer feedback</span>
   </div>
 
-  <div class="panel">
-    <h3>Customer Feedback</h3>
-    <p class="sub">Review submissions for your selected business.</p>
-    <div id="reviewsList">
-      <div class="review-empty">Select a business to view its reviews.</div>
+  <section class="reviews-section">
+    <div class="review-summary">
+      <div class="review-count">
+        <strong id="totalReviews">0</strong>
+        <span>Total Reviews</span>
+      </div>
+      <div class="review-count">
+        <strong id="pendingReviews">0</strong>
+        <span>Pending Reviews</span>
+      </div>
+      <div class="review-count">
+        <strong id="averageRating">0.0 ★</strong>
+        <span>Average Rating</span>
+      </div>
     </div>
-  </div>
-</section>
+
+    <div class="panel">
+      <h3>Customer Feedback</h3>
+      <p class="sub">Review submissions for your selected business.</p>
+      <div id="reviewsList">
+        <div class="review-empty">Select a business to view its reviews.</div>
+      </div>
+    </div>
+  </section>
 
   <div class="footer">© 2026 Growvia · Grow Your Business. Build Your Trust.</div>
 </main>
@@ -402,6 +402,7 @@ function categoryLabel(value) {
   return labels[categoryValue(value)] || "Other / General Business";
 }
 
+/* Load customer reviews */
 async function loadReviews(selectedBusinessId) {
   const list = $("reviewsList");
   list.textContent = "Loading reviews...";
@@ -419,6 +420,7 @@ async function loadReviews(selectedBusinessId) {
 
   const reviews = data || [];
   const pending = reviews.filter(r => r.status === "pending").length;
+
   const average = reviews.length
     ? reviews.reduce((sum, r) => sum + Number(r.rating), 0) / reviews.length
     : 0;
@@ -464,9 +466,11 @@ async function loadReviews(selectedBusinessId) {
 
     const meta = document.createElement("div");
     meta.className = "review-meta";
+
     const date = review.created_at
       ? new Date(review.created_at).toLocaleDateString("en-IN")
       : "Date unavailable";
+
     meta.textContent = (review.language || "Language not specified") + " · " + date;
 
     card.append(top, status, feedback, meta);
@@ -478,12 +482,12 @@ async function loadReviews(selectedBusinessId) {
       const approve = document.createElement("button");
       approve.className = "approve-btn";
       approve.textContent = "✓ Approve";
-      approve.addEventListener("click", () => updateReviewStatus(review.id, "approved"));
+      approve.addEventListener("click", () => updateReviewStatus(review.id, "published"));
 
       const reject = document.createElement("button");
       reject.className = "reject-btn";
       reject.textContent = "✕ Reject";
-      reject.addEventListener("click", () => updateReviewStatus(review.id, "rejected"));
+      reject.addEventListener("click", () => updateReviewStatus(review.id, "archived"));
 
       actions.append(approve, reject);
       card.append(actions);
@@ -493,6 +497,7 @@ async function loadReviews(selectedBusinessId) {
   });
 }
 
+/* Update review status */
 async function updateReviewStatus(reviewId, newStatus) {
   if (!businessId) return;
 
@@ -519,6 +524,7 @@ function renderBusinessSelector() {
   placeholder.textContent = businesses.length
     ? "Select a business"
     : "No businesses yet";
+
   selector.appendChild(placeholder);
 
   businesses.forEach(business => {
@@ -534,6 +540,7 @@ function renderBusinessSelector() {
 function displayBusiness(business) {
   businessId = business.id;
   loadReviews(business.id);
+
   $("businessName").value = business.business_name || "";
   $("category").value = categoryValue(business.category);
   $("phone").value = business.phone || "";
@@ -562,6 +569,7 @@ function displayBusiness(business) {
 
   box.append(name, category, phone);
   $("businessDetails").append(box);
+
   $("businessSelector").value = business.id;
   showMessage("", "");
 }
@@ -579,10 +587,17 @@ function startNewBusiness() {
   $("saveBtn").textContent = "Create Business Profile  →";
 
   $("businessDetails").replaceChildren();
+
   const empty = document.createElement("div");
   empty.className = "profile-empty";
   empty.textContent = "Fill in the form and save to create your new business profile.";
+
   $("businessDetails").append(empty);
+
+  $("totalReviews").textContent = "0";
+  $("pendingReviews").textContent = "0";
+  $("averageRating").textContent = "0.0 ★";
+  $("reviewsList").textContent = "Save and select a business to view reviews.";
 
   showMessage("You are adding a new business.", "");
   $("businessName").focus();
@@ -626,10 +641,14 @@ async function initDashboard() {
   }
 
   currentUser = data.user;
+
   $("userEmail").textContent = currentUser.email || "Growvia User";
   $("avatar").textContent = (currentUser.email || "G").charAt(0).toUpperCase();
+
   $("todayDate").textContent = new Date().toLocaleDateString("en-IN", {
-    day:"numeric", month:"short", year:"numeric"
+    day:"numeric",
+    month:"short",
+    year:"numeric"
   });
 
   await loadBusinesses();
@@ -652,6 +671,7 @@ $("businessForm").addEventListener("submit", async (event) => {
 
   const saveBtn = $("saveBtn");
   saveBtn.disabled = true;
+
   showMessage("Saving your business profile...", "");
 
   const business = {
@@ -685,9 +705,14 @@ $("businessForm").addEventListener("submit", async (event) => {
   if (result.error) {
     showMessage("Could not save: " + result.error.message, "error");
   } else {
-    const savedId = result.data && result.data.length ? result.data[0].id : businessId;
+    const savedId = result.data && result.data.length
+      ? result.data[0].id
+      : businessId;
+
     showMessage("Business profile saved successfully!", "success");
+
     await loadBusinesses(savedId);
+
     showMessage("Business profile saved successfully!", "success");
   }
 
