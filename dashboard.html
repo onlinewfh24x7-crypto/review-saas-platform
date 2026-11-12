@@ -533,7 +533,7 @@ function renderBusinessSelector() {
 
 function displayBusiness(business) {
   businessId = business.id;
-
+  loadReviews(business.id);
   $("businessName").value = business.business_name || "";
   $("category").value = categoryValue(business.category);
   $("phone").value = business.phone || "";
