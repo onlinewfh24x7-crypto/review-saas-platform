@@ -130,8 +130,7 @@
           });
 
           if (error) throw error;
-          message.textContent = "Login successful! Welcome to Growvia.";
-        }
+              window.location.href = "dashboard.html";        }
       } catch (error) {
         message.textContent = "Error: " + error.message;
       } finally {
