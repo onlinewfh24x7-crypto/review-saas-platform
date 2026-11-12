@@ -453,6 +453,79 @@ function categoryLabel(value) {
   return labels[categoryValue(value)] || "Other / General Business";
 }
 
+/* REVIEW PAGE MANAGEMENT */
+
+async function loadReviewPage(selectedBusinessId) {
+  const msg = $("reviewPageMessage");
+  msg.textContent = "Loading review page settings...";
+
+  const { data, error } = await client
+    .from("review_pages")
+    .select("id, page_title, welcome_message, google_review_url, theme_color, is_published")
+    .eq("business_id", selectedBusinessId)
+    .maybeSingle();
+
+  if (error) {
+    msg.textContent = "Could not load settings: " + error.message;
+    return;
+  }
+
+  if (!data) {
+    $("pageTitle").value = "";
+    $("welcomeMessage").value = "";
+    $("googleReviewUrl").value = "";
+    $("themeColor").value = "#6B1F3A";
+    $("pagePublished").checked = false;
+    msg.textContent = "No review page settings found for this business.";
+    return;
+  }
+
+  $("pageTitle").value = data.page_title || "";
+  $("welcomeMessage").value = data.welcome_message || "";
+  $("googleReviewUrl").value = data.google_review_url || "";
+  $("themeColor").value = data.theme_color || "#6B1F3A";
+  $("pagePublished").checked = data.is_published === true;
+
+  msg.textContent = "Review page settings loaded.";
+}
+
+$("reviewPageForm").addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  if (!businessId) {
+    $("reviewPageMessage").textContent = "Please select a business first.";
+    return;
+  }
+
+  const button = $("saveReviewPageBtn");
+  button.disabled = true;
+
+  const settings = {
+    business_id: businessId,
+    page_title: $("pageTitle").value.trim(),
+    welcome_message: $("welcomeMessage").value.trim(),
+    google_review_url: $("googleReviewUrl").value.trim() || null,
+    theme_color: $("themeColor").value,
+    is_published: $("pagePublished").checked
+  };
+
+  const { error } = await client
+    .from("review_pages")
+    .upsert(settings, { onConflict: "business_id" });
+
+  if (error) {
+    $("reviewPageMessage").textContent = "Save failed: " + error.message;
+    $("reviewPageMessage").className = "status error";
+  } else {
+    $("reviewPageMessage").textContent = "Review page settings saved successfully!";
+    $("reviewPageMessage").className = "status success";
+  }
+
+  button.disabled = false;
+});
+
+/* END REVIEW PAGE MANAGEMENT */
+
 /* Load customer reviews */
 async function loadReviews(selectedBusinessId) {
   const list = $("reviewsList");
