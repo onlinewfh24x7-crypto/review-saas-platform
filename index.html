@@ -1,0 +1,143 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Growvia | Login & Register</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *{box-sizing:border-box}
+    body{
+      margin:0;min-height:100vh;display:grid;place-items:center;
+      background:linear-gradient(135deg,#071b49,#1257b8);
+      font-family:Arial,sans-serif;padding:20px;color:#17233b
+    }
+    .card{
+      background:white;width:100%;max-width:430px;padding:32px;
+      border-radius:20px;box-shadow:0 20px 60px #0003
+    }
+    .brand{text-align:center;margin-bottom:25px}
+    .brand h1{margin:0;color:#071b49;font-size:34px}
+    .brand span{color:#f47721}
+    .brand p{color:#64748b;font-size:13px}
+    .tabs{display:flex;background:#eef2f8;border-radius:10px;padding:4px}
+    .tabs button{width:50%;border:0;padding:12px;cursor:pointer;
+      border-radius:8px;background:transparent;font-weight:bold}
+    .tabs button.active{background:#071b49;color:white}
+    label{display:block;font-size:13px;font-weight:bold;margin:17px 0 7px}
+    input{width:100%;padding:13px;border:1px solid #d6deea;
+      border-radius:9px;font-size:15px}
+    .submit{width:100%;padding:14px;margin-top:22px;border:0;
+      border-radius:9px;background:#f47721;color:white;
+      font-weight:bold;font-size:16px;cursor:pointer}
+    .submit:disabled{opacity:.6;cursor:wait}
+    #message{font-size:13px;margin-top:16px;line-height:1.5}
+    .note{text-align:center;color:#64748b;font-size:12px;margin-top:22px}
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="brand">
+      <h1>GRO<span>VIA</span></h1>
+      <p>Grow Your Business. Build Your Trust.</p>
+    </div>
+
+    <div class="tabs">
+      <button id="loginTab" class="active" type="button">Login</button>
+      <button id="signupTab" type="button">Register</button>
+    </div>
+
+    <form id="authForm">
+      <div id="nameField" hidden>
+        <label>Full Name</label>
+        <input id="fullName" type="text" autocomplete="name">
+      </div>
+
+      <label>Email Address</label>
+      <input id="email" type="email" required autocomplete="email">
+
+      <label>Password</label>
+      <input id="password" type="password" required
+        minlength="8" autocomplete="current-password">
+
+      <button class="submit" id="submitBtn" type="submit">Login</button>
+    </form>
+
+    <div id="message" role="status" aria-live="polite"></div>
+    <p class="note">Secure account access powered by Supabase</p>
+  </main>
+
+  <script>
+    const SUPABASE_URL = "https://zfnvxfztxhzxwwvkapys.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_X_Li2kPRPtqU7MeLqOSUpg_iCGLLpi1";
+
+    const client = window.supabase.createClient(
+      SUPABASE_URL, SUPABASE_KEY
+    );
+
+    let mode = "login";
+
+    const loginTab = document.getElementById("loginTab");
+    const signupTab = document.getElementById("signupTab");
+    const nameField = document.getElementById("nameField");
+    const submitBtn = document.getElementById("submitBtn");
+    const message = document.getElementById("message");
+
+    function setMode(nextMode) {
+      mode = nextMode;
+      loginTab.classList.toggle("active", mode === "login");
+      signupTab.classList.toggle("active", mode === "signup");
+      nameField.hidden = mode !== "signup";
+      document.getElementById("fullName").required = mode === "signup";
+      submitBtn.textContent = mode === "login" ? "Login" : "Create Account";
+      document.getElementById("password").autocomplete =
+        mode === "login" ? "current-password" : "new-password";
+      message.textContent = "";
+    }
+
+    loginTab.addEventListener("click", () => setMode("login"));
+    signupTab.addEventListener("click", () => setMode("signup"));
+
+    document.getElementById("authForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      message.textContent = "";
+      submitBtn.disabled = true;
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const fullName = document.getElementById("fullName").value.trim();
+
+      try {
+        if (mode === "signup") {
+          const { data, error } = await client.auth.signUp({
+            email,
+            password,
+            options: {
+              data: { full_name: fullName },
+              emailRedirectTo: window.location.origin + window.location.pathname
+            }
+          });
+
+          if (error) throw error;
+
+          message.textContent = data.session
+            ? "Account created successfully. You can now continue."
+            : "Registration successful! Please check your email and verify your account.";
+        } else {
+          const { data, error } = await client.auth.signInWithPassword({
+            email, password
+          });
+
+          if (error) throw error;
+          message.textContent = "Login successful! Welcome to Growvia.";
+        }
+      } catch (error) {
+        message.textContent = "Error: " + error.message;
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
