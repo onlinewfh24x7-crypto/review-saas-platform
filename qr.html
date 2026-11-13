@@ -1,0 +1,194 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Growvia | QR Code Generator</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f5f6fa;color:#202b3c;font-family:Arial,sans-serif}
+header{background:#17243a;color:white;padding:20px 6%;display:flex;justify-content:space-between;align-items:center}
+header h2{margin:0;color:#e5bd75}
+header a{color:white;text-decoration:none}
+main{max-width:850px;margin:35px auto;padding:20px}
+.card{background:white;padding:28px;border-radius:16px;box-shadow:0 5px 25px #17243a12}
+h1{margin-top:0;font-size:27px}
+p{color:#687386;line-height:1.6}
+select{width:100%;padding:14px;border:1px solid #dce1e8;border-radius:9px;font-size:16px;margin:10px 0 20px}
+.qrbox{text-align:center;background:#faf8f3;border:1px solid #eee4d4;border-radius:14px;padding:25px;margin-top:20px}
+#qrcode{display:flex;justify-content:center;align-items:center;min-height:230px}
+#qrcode canvas{max-width:100%;height:auto!important}
+button{border:0;border-radius:9px;padding:13px 20px;background:#74344e;color:white;font-weight:bold;cursor:pointer;margin:8px 5px}
+button:disabled{opacity:.5;cursor:not-allowed}
+.link{overflow-wrap:anywhere;background:#f1f3f7;padding:12px;border-radius:8px;font-size:14px}
+.status{padding:12px;border-radius:8px;background:#fff5e8;color:#80551b;margin-top:15px}
+.success{background:#e9f8ef;color:#17633b}
+@media(max-width:600px){main{margin:15px auto;padding:12px}.card{padding:20px}header{padding:16px}}
+</style>
+</head>
+<body>
+<header>
+<h2>GROWVIA</h2>
+<a href="dashboard.html">← Dashboard</a>
+</header>
+
+<main>
+<div class="card">
+<h1>QR Code Generator</h1>
+<p>अपने Business का Review QR Code बनाएँ और ग्राहकों के साथ शेयर करें।</p>
+
+<label><b>Select Business</b></label>
+<select id="businessSelect">
+<option value="">Loading businesses...</option>
+</select>
+
+<div id="status" class="status">Business लोड हो रहे हैं...</div>
+
+<div id="qrSection" style="display:none">
+<div class="qrbox">
+<h3 id="businessName"></h3>
+<div id="qrcode"></div>
+<p>Scan करके अपना Feedback दें</p>
+</div>
+
+<h3>Public Review Page Link</h3>
+<div class="link" id="pageLink"></div>
+
+<div style="text-align:center;margin-top:15px">
+<button id="downloadBtn">Download QR PNG</button>
+<button id="openBtn">Open Review Page</button>
+</div>
+</div>
+</div>
+</main>
+
+<script>
+const SUPABASE_URL = "https://zfnvxfztxhzxwwvkapys.supabase.co";
+const SUPABASE_KEY = "sb_publishable_X_Li2kPRPtqU7MeLqOSUpg_iCGLLpi1";
+
+const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const businessSelect = document.getElementById("businessSelect");
+const statusBox = document.getElementById("status");
+const qrSection = document.getElementById("qrSection");
+let currentUrl = "";
+
+function showStatus(message, success=false){
+  statusBox.textContent = message;
+  statusBox.className = success ? "status success" : "status";
+}
+
+async function loadBusinesses(){
+  const {data:{user},error:authError} = await client.auth.getUser();
+
+  if(authError || !user){
+    showStatus("Login नहीं है। पहले Dashboard में Login करें।");
+    return;
+  }
+
+  const {data,error} = await client
+    .from("businesses")
+    .select("id,business_name")
+    .eq("owner_user_id",user.id)
+    .order("created_at",{ascending:false});
+
+  if(error){
+    showStatus("Business लोड नहीं हुए: " + error.message);
+    return;
+  }
+
+  businessSelect.innerHTML = '<option value="">Select Business</option>';
+
+  if(!data || data.length===0){
+    showStatus("अभी कोई Business नहीं मिला।");
+    return;
+  }
+
+  data.forEach(b=>{
+    const option=document.createElement("option");
+    option.value=b.id;
+    option.textContent=b.business_name;
+    businessSelect.appendChild(option);
+  });
+
+  showStatus("Business चुनें और QR Code बनाएँ।",true);
+}
+
+async function generateQR(){
+  const businessId=businessSelect.value;
+  qrSection.style.display="none";
+  document.getElementById("qrcode").innerHTML="";
+
+  if(!businessId){
+    showStatus("पहले Business चुनें।");
+    return;
+  }
+
+  showStatus("Review Page खोज रहे हैं...");
+
+  const {data:page,error}=await client
+    .from("review_pages")
+    .select("slug,is_published")
+    .eq("business_id",businessId)
+    .maybeSingle();
+
+  if(error){
+    showStatus("Review Page लोड नहीं हुआ: "+error.message);
+    return;
+  }
+
+  if(!page || !page.slug){
+    showStatus("इस Business का Review Page अभी नहीं बना है। पहले Dashboard में Review Page Settings Save करें।");
+    return;
+  }
+
+  if(!page.is_published){
+    showStatus("यह Review Page अभी Publish नहीं है। पहले Dashboard में इसे Publish करें।");
+    return;
+  }
+
+  const businessName=businessSelect.options[businessSelect.selectedIndex].text;
+  currentUrl= new URL("review.html",window.location.href).href + "?slug=" + encodeURIComponent(page.slug);
+
+  document.getElementById("businessName").textContent=businessName;
+  document.getElementById("pageLink").textContent=currentUrl;
+
+  try{
+    await QRCode.toCanvas(currentUrl,{
+      width:240,
+      margin:2,
+      errorCorrectionLevel:"H"
+    }).then(canvas=>{
+      document.getElementById("qrcode").appendChild(canvas);
+    });
+
+    qrSection.style.display="block";
+    showStatus("आपका QR Code तैयार है!",true);
+  }catch(e){
+    showStatus("QR Code नहीं बन पाया: "+e.message);
+  }
+}
+
+businessSelect.addEventListener("change",generateQR);
+
+document.getElementById("downloadBtn").addEventListener("click",()=>{
+  const canvas=document.querySelector("#qrcode canvas");
+  if(!canvas)return;
+
+  const link=document.createElement("a");
+  link.download="Growvia-Review-QR.png";
+  link.href=canvas.toDataURL("image/png");
+  link.click();
+});
+
+document.getElementById("openBtn").addEventListener("click",()=>{
+  if(currentUrl)window.open(currentUrl,"_blank");
+});
+
+loadBusinesses();
+</script>
+</body>
+</html>
