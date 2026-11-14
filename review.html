@@ -348,23 +348,56 @@ function showStatus(message, type) {
   statusMessage.className = 'status ' + type;
 }
 
+
 function getTemplateCategory(category) {
-  const value = (category || '').toLowerCase();
+  const value = (category || '').toLowerCase().trim();
 
-  if (value.includes('salon') || value.includes('beauty') ||
-      value.includes('parlour') || value.includes('parlor')) {
-    return 'Salon & Beauty';
-  }
-  if (value.includes('restaurant') || value.includes('cafe')) return 'Restaurant & Cafe';
-  if (value.includes('clinic') || value.includes('health')) return 'Clinic & Healthcare';
-  if (value.includes('gym') || value.includes('fitness')) return 'Gym & Fitness';
-  if (value.includes('hotel') || value.includes('travel')) return 'Hotel & Travel';
-  if (value.includes('retail') || value.includes('shopping') || value.includes('shop')) return 'Retail & Shopping';
-  if (value.includes('education') || value.includes('coaching')) return 'Education & Coaching';
-  if (value.includes('automobile') || value.includes('auto')) return 'Automobile Services';
+  const rules = [
+    { keys: ['salon', 'beauty', 'parlour', 'parlor'], name: 'Salon & Beauty' },
+    { keys: ['spa', 'wellness'], name: 'Spa & Wellness' },
+    { keys: ['restaurant', 'food'], name: 'Restaurant & Cafe' },
+    { keys: ['cafe', 'coffee'], name: 'Cafe & Coffee Shop' },
+    { keys: ['hotel', 'resort'], name: 'Hotel & Travel' },
+    { keys: ['gym', 'fitness'], name: 'Gym & Fitness' },
+    { keys: ['yoga'], name: 'Yoga Center' },
+    { keys: ['clinic', 'health', 'hospital'], name: 'Clinic & Healthcare' },
+    { keys: ['diagnostic', 'pathology', 'lab'], name: 'Diagnostic Lab' },
+    { keys: ['coaching', 'education', 'institute'], name: 'Education & Coaching' },
+    { keys: ['school'], name: 'School' },
+    { keys: ['college', 'university'], name: 'College & University' },
+    { keys: ['computer'], name: 'Computer Institute' },
+    { keys: ['real estate', 'property'], name: 'Real Estate' },
+    { keys: ['travel', 'tour'], name: 'Travel Agency' },
+    { keys: ['automobile showroom', 'car showroom'], name: 'Automobile Showroom' },
+    { keys: ['automobile', 'auto service', 'car service'], name: 'Automobile Services' },
+    { keys: ['clothing', 'apparel', 'fashion'], name: 'Clothing Store' },
+    { keys: ['electronics'], name: 'Electronics Store' },
+    { keys: ['grocery', 'supermarket'], name: 'Grocery & Supermarket' },
+    { keys: ['jewellery', 'jewelry'], name: 'Jewellery Store' },
+    { keys: ['furniture'], name: 'Furniture Store' },
+    { keys: ['photography', 'photo studio'], name: 'Photography Studio' },
+    { keys: ['event management', 'events'], name: 'Event Management' },
+    { keys: ['wedding'], name: 'Wedding Services' },
+    { keys: ['digital marketing', 'marketing agency'], name: 'Digital Marketing Agency' },
+    { keys: ['software', 'it services', 'technology'], name: 'IT & Software Services' },
+    { keys: ['repair', 'maintenance'], name: 'Repair & Maintenance' },
+    { keys: ['retail', 'shopping', 'shop', 'store'], name: 'Retail & Shopping' },
+    { keys: ['general', 'other', 'business'], name: 'General Business' }
+  ];
 
-  return category;
+  const exact = rules.find(rule =>
+    rule.keys.some(key => value === key)
+  );
+
+  if (exact) return exact.name;
+
+  const matched = rules.find(rule =>
+    rule.keys.some(key => value.includes(key))
+  );
+
+  return matched ? matched.name : 'General Business';
 }
+
 
 async function loadPage() {
   if (!slug) {
