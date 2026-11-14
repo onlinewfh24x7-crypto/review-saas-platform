@@ -16,7 +16,7 @@
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:Inter,sans-serif;background:var(--bg);color:var(--text)}
-button,input,select{font:inherit}
+button,input,select,textarea{font:inherit}
 button{cursor:pointer}
 .sidebar{
 position:fixed;inset:0 auto 0 0;width:250px;background:var(--navy);
@@ -69,8 +69,8 @@ margin:3px 0;color:#CBD5E8;font-size:13px;font-weight:600;text-decoration:none
 .panel .sub{font-size:11px;color:var(--muted);margin:0 0 18px}
 .form-group{margin-bottom:16px}
 label{display:block;font-size:11px;font-weight:700;margin-bottom:8px;color:#34425B}
-input,select{width:100%;height:45px;border:1px solid #DCE3EF;border-radius:8px;padding:0 12px;background:#FCFDFF;color:var(--text);font-size:12px;outline:none}
-input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px #1257B812}
+input,select,textarea{width:100%;height:45px;border:1px solid #DCE3EF;border-radius:8px;padding:0 12px;background:#FCFDFF;color:var(--text);font-size:12px;outline:none}\ntextarea{height:auto;min-height:115px;padding:12px;resize:vertical;line-height:1.6}
+input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px #1257B812}
 input[type=color]{padding:5px;height:45px;max-width:100px}
 input[type=checkbox]{width:auto;height:auto}
 .primary-btn{width:100%;border:0;border-radius:8px;background:linear-gradient(100deg,var(--blue),var(--navy));color:white;padding:14px;font-size:12px;font-weight:700}
@@ -225,6 +225,18 @@ input[type=checkbox]{width:auto;height:auto}
         <div class="form-group">
           <label for="phone">BUSINESS MOBILE NUMBER</label>
           <input id="phone" type="tel" maxlength="20" placeholder="Enter contact number" required>
+        </div>
+        <div class="form-group">
+          <label for="servicesProducts">SERVICES / PRODUCTS</label>
+          <textarea id="servicesProducts" maxlength="2000" rows="3" placeholder="List your services or products, separated by commas"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="businessSpeciality">BUSINESS SPECIALITY</label>
+          <textarea id="businessSpeciality" maxlength="1500" rows="3" placeholder="What makes your business special?"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="additionalInfo">ADDITIONAL BUSINESS INFORMATION</label>
+          <textarea id="additionalInfo" maxlength="4000" rows="5" placeholder="Tell us more about your business, customers, service process, facilities, or anything important for personalized review suggestions."></textarea>
         </div>
         <button class="primary-btn" id="saveBtn" type="submit">Save Business Profile →</button>
         <div class="status" id="message" role="status"></div>
@@ -585,6 +597,9 @@ function displayBusiness(business){
   $("businessName").value=business.business_name||"";
   $("category").value=categoryValue(business.category);
   $("phone").value=business.phone||"";
+  $("servicesProducts").value=business.services_products||"";
+  $("businessSpeciality").value=business.business_speciality||"";
+  $("additionalInfo").value=business.additional_info||"";
   $("profileStatus").textContent="Completed";
   $("formHeading").textContent="Edit Business Profile";
   $("formSub").textContent="Update the details of your selected business.";
@@ -606,7 +621,19 @@ function displayBusiness(business){
   phone.className="profile-line";
   phone.textContent="Phone: "+(business.phone||"Not added");
 
-  box.append(name,category,phone);
+  const services=document.createElement("div");
+  services.className="profile-line";
+  services.textContent="Services / Products: "+(business.services_products||"Not added");
+
+  const speciality=document.createElement("div");
+  speciality.className="profile-line";
+  speciality.textContent="Business Speciality: "+(business.business_speciality||"Not added");
+
+  const additional=document.createElement("div");
+  additional.className="profile-line";
+  additional.textContent="Additional Information: "+(business.additional_info||"Not added");
+
+  box.append(name,category,phone,services,speciality,additional);
   $("businessDetails").append(box);
   $("businessSelector").value=business.id;
   showMessage("","");
@@ -619,6 +646,9 @@ function startNewBusiness(){
   $("businessName").value="";
   $("category").value="";
   $("phone").value="";
+  $("servicesProducts").value="";
+  $("businessSpeciality").value="";
+  $("additionalInfo").value="";
   $("profileStatus").textContent="New";
   $("formHeading").textContent="Add New Business";
   $("formSub").textContent="Enter details to add another business.";
@@ -655,7 +685,7 @@ async function loadBusinesses(preferredId=null){
 
   const {data,error}=await client
     .from("businesses")
-    .select("id, business_name, category, phone, created_at")
+    .select("id, business_name, category, phone, services_products, business_speciality, additional_info, created_at")
     .eq("owner_user_id",currentUser.id)
     .order("created_at",{ascending:false});
 
@@ -716,7 +746,10 @@ $("businessForm").addEventListener("submit",async event=>{
     owner_user_id:currentUser.id,
     business_name:$("businessName").value.trim(),
     category:$("category").value,
-    phone:$("phone").value.trim()
+    phone:$("phone").value.trim(),
+    services_products:$("servicesProducts").value.trim(),
+    business_speciality:$("businessSpeciality").value.trim(),
+    additional_info:$("additionalInfo").value.trim()
   };
 
   if(!business.business_name||!business.category||!business.phone){
