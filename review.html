@@ -139,6 +139,10 @@ textarea{min-height:125px;resize:vertical;line-height:1.8}
   font-size:11px;line-height:1.6;transition:.2s;
 }
 .suggestion:hover{border-color:var(--gold);background:#f8f0e2}
+.ai-panel{margin-top:16px;padding:18px;border:1px solid rgba(201,167,106,.45);border-radius:14px;background:linear-gradient(135deg,#fffaf2,#fff)}
+.ai-button{width:100%;border:1px solid var(--gold);border-radius:10px;padding:13px 15px;background:#f4ead8;color:var(--wine);font-size:11px;font-weight:700;letter-spacing:1px}
+.ai-button:disabled{opacity:.6;cursor:wait}
+.ai-results{margin-top:13px}
 .suggestion small{
   display:block;color:#aa8b5b;font-weight:700;
   font-size:9px;letter-spacing:1px;margin-bottom:5px;
@@ -279,6 +283,17 @@ textarea{min-height:125px;resize:vertical;line-height:1.8}
               Choose an idea only if it reflects your real experience.
               You can edit it in your own words.
             </div>
+            <div class="ai-panel">
+              <label class="field-label">PERSONALISED AI IDEAS</label>
+              <button class="ai-button" id="generateAiButton" type="button">
+                ✦ GENERATE CUSTOM AI SUGGESTIONS
+              </button>
+              <div class="helper">
+                Suggestions are based on this business's services and details.
+                Use them only if they match your real experience.
+              </div>
+              <div class="suggestions ai-results" id="aiTemplateList"></div>
+            </div>
           </div>
 
           <div class="form-section">
@@ -328,6 +343,9 @@ const slug = new URLSearchParams(location.search).get('slug');
 
 let selectedRating = 0;
 let templateCategory = '';
+let currentBusiness = null;
+
+const AI_WORKER_URL = 'https://growvia-ai-worker.onlinewfh24x7.workers.dev';
 
 const pageContent = document.getElementById('pageContent');
 const pageMessage = document.getElementById('pageMessage');
@@ -457,6 +475,7 @@ async function loadPage() {
     }
 
     templateCategory = getTemplateCategory(data.category);
+    currentBusiness = data;
 
     pageMessage.classList.add('hidden');
     pageContent.classList.remove('hidden');
@@ -512,7 +531,90 @@ async function loadTemplates() {
   });
 }
 
-document.getElementById('language').addEventListener('change', loadTemplates);
+async function generateAiSuggestions() {
+  const button = document.getElementById('generateAiButton');
+  const list = document.getElementById('aiTemplateList');
+  const language = document.getElementById('language').value;
+
+  if (!currentBusiness) {
+    showStatus('Business information is not available. Please reload the page.', 'error');
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = 'GENERATING IDEAS...';
+  list.replaceChildren();
+
+  const loading = document.createElement('div');
+  loading.className = 'helper';
+  loading.textContent = 'Creating suggestions for this business. Please wait...';
+  list.appendChild(loading);
+
+  try {
+    const response = await fetch(AI_WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        businessName: currentBusiness.business_name || '',
+        category: currentBusiness.category || '',
+        servicesProducts: currentBusiness.services_products || '',
+        businessSpeciality: currentBusiness.business_speciality || '',
+        additionalInfo: currentBusiness.additional_info || '',
+        language
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success || !Array.isArray(result.suggestions)) {
+      throw new Error(result.error || 'AI suggestions could not be generated.');
+    }
+
+    list.replaceChildren();
+
+    result.suggestions.slice(0, 5).forEach((suggestion, index) => {
+      const item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'suggestion';
+
+      const number = document.createElement('small');
+      number.textContent = 'AI IDEA ' + String(index + 1).padStart(2, '0');
+
+      const preview = document.createElement('span');
+      preview.textContent = suggestion;
+
+      item.append(number, preview);
+      item.addEventListener('click', () => {
+        document.getElementById('feedback').value = suggestion;
+        document.getElementById('feedback').focus();
+      });
+
+      list.appendChild(item);
+    });
+
+    if (result.suggestions.length === 0) {
+      throw new Error('No suggestions were returned. Please try again.');
+    }
+  } catch (error) {
+    console.error('AI suggestion error:', error);
+    list.replaceChildren();
+    const message = document.createElement('div');
+    message.className = 'helper';
+    message.textContent = error.message || 'AI suggestions are temporarily unavailable.';
+    list.appendChild(message);
+  } finally {
+    button.disabled = false;
+    button.textContent = '✦ GENERATE CUSTOM AI SUGGESTIONS';
+  }
+}
+
+document.getElementById('generateAiButton')
+  .addEventListener('click', generateAiSuggestions);
+
+document.getElementById('language').addEventListener('change', () => {
+  loadTemplates();
+  document.getElementById('aiTemplateList').replaceChildren();
+});
 
 document.querySelectorAll('.star').forEach(button => {
   button.addEventListener('click', () => {
