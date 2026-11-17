@@ -1,0 +1,215 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Growvia | Admin Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#071B49;--blue:#1257B8;--gold:#F5A623;
+  --bg:#F5F7FC;--white:#fff;--text:#17233B;
+  --muted:#7B879B;--border:#E8ECF3;--green:#159B70;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,sans-serif}
+header{background:var(--navy);color:white;padding:22px 5%;display:flex;justify-content:space-between;align-items:center;gap:15px}
+.brand{font:800 25px Poppins,sans-serif;letter-spacing:-1px}
+.brand span{color:var(--gold)}
+header small{display:block;color:#B7C5DD;font-size:10px;letter-spacing:2px}
+button{font:inherit;cursor:pointer}
+.logout{background:#ffffff15;border:1px solid #ffffff40;color:white;padding:10px 15px;border-radius:8px}
+main{max-width:1150px;margin:auto;padding:35px 22px}
+h1{font:700 27px Poppins,sans-serif;color:var(--navy);margin:0 0 8px}
+.sub{color:var(--muted);font-size:13px;margin:0 0 25px}
+.card{background:white;border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:20px;box-shadow:0 4px 16px #071b4908}
+.status{font-size:13px;line-height:1.7;padding:13px;border-radius:9px;background:#F2F5FA;color:#53627A}
+.success{background:#E9F8F1;color:#147A52}
+.error{background:#FFF0F0;color:#B4232C}
+.warning{background:#FFF7E8;color:#986300}
+.meta{font-size:12px;color:var(--muted);margin-top:8px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:20px 0}
+.stat{background:white;border:1px solid var(--border);padding:18px;border-radius:12px}
+.stat strong{display:block;font:700 25px Poppins;color:var(--navy)}
+.stat span{font-size:11px;color:var(--muted)}
+.request{border:1px solid var(--border);border-radius:12px;padding:18px;margin-top:13px}
+.request h3{margin:0 0 10px;color:var(--navy);font:600 16px Poppins}
+.details{display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12px;line-height:1.6}
+.details b{color:#53627A}
+.pill{display:inline-block;padding:5px 10px;border-radius:20px;background:#FFF3D8;color:#8A5A00;font-size:10px;font-weight:700}
+.empty{padding:25px;text-align:center;color:var(--muted);font-size:13px}
+.hidden{display:none}
+@media(max-width:650px){
+ header{padding:18px;align-items:flex-start}
+ main{padding:25px 14px}
+ .stats{grid-template-columns:1fr}
+ .details{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">GRO<span>VIA</span><small>ADMIN CONTROL CENTER</small></div>
+  <button class="logout" id="logoutBtn">Sign Out</button>
+</header>
+
+<main>
+  <h1>Admin Dashboard</h1>
+  <p class="sub">Manage Growvia business approvals and platform requests.</p>
+
+  <section class="card">
+    <h3>Admin Security Verification</h3>
+    <div id="securityStatus" class="status">Checking your login and Admin permissions...</div>
+    <div class="meta" id="adminEmail"></div>
+  </section>
+
+  <section id="dashboardContent" class="hidden">
+    <div class="stats">
+      <div class="stat"><strong id="totalRequests">0</strong><span>Total Requests</span></div>
+      <div class="stat"><strong id="pendingRequests">0</strong><span>Pending Requests</span></div>
+      <div class="stat"><strong id="otherRequests">0</strong><span>Reviewed Requests</span></div>
+    </div>
+
+    <section class="card">
+      <h3>Business Profile Requests</h3>
+      <p class="sub">New business applications submitted by owners.</p>
+      <div id="requestList"><div class="empty">Loading requests...</div></div>
+    </section>
+  </section>
+</main>
+
+<script>
+const SUPABASE_URL = "https://zfnvxfztxhzxwwvkapys.supabase.co";
+const SUPABASE_KEY = "sb_publishable_X_Li2kPRPtqU7MeLqOSUpg_iCGLLpi1";
+const client = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+const $ = id => document.getElementById(id);
+
+function showSecurity(message,type){
+  $("securityStatus").textContent=message;
+  $("securityStatus").className="status "+(type||"");
+}
+
+function safeText(value){
+  return String(value||"Not provided");
+}
+
+function renderRequests(requests){
+  const list=$("requestList");
+  list.replaceChildren();
+
+  if(!requests.length){
+    const empty=document.createElement("div");
+    empty.className="empty";
+    empty.textContent="No business requests found.";
+    list.append(empty);
+    return;
+  }
+
+  requests.forEach(item=>{
+    const card=document.createElement("article");
+    card.className="request";
+
+    const heading=document.createElement("h3");
+    heading.textContent=safeText(item.business_name);
+
+    const badge=document.createElement("span");
+    badge.className="pill";
+    badge.textContent=String(item.status||"pending").toUpperCase();
+
+    const details=document.createElement("div");
+    details.className="details";
+
+    const fields=[
+      ["Category",item.category],
+      ["Phone",item.phone],
+      ["Email",item.email],
+      ["City",item.city],
+      ["Address",item.address],
+      ["Services / Products",item.services_products],
+      ["Speciality",item.business_speciality],
+      ["Additional Information",item.additional_info]
+    ];
+
+    fields.forEach(([label,value])=>{
+      const line=document.createElement("div");
+      const bold=document.createElement("b");
+      bold.textContent=label+": ";
+      const span=document.createElement("span");
+      span.textContent=safeText(value);
+      line.append(bold,span);
+      details.append(line);
+    });
+
+    const date=document.createElement("p");
+    date.className="meta";
+    date.textContent="Submitted: "+new Date(item.created_at).toLocaleString("en-IN");
+
+    card.append(heading,badge,details,date);
+    list.append(card);
+  });
+}
+
+async function loadRequests(){
+  $("requestList").textContent="Loading business requests...";
+
+  const {data,error}=await client
+    .from("business_profile_requests")
+    .select("id,owner_user_id,business_name,category,phone,email,address,city,services_products,business_speciality,additional_info,status,created_at")
+    .order("created_at",{ascending:false});
+
+  if(error){
+    $("requestList").textContent="Could not load requests: "+error.message;
+    return;
+  }
+
+  const requests=data||[];
+  const pending=requests.filter(r=>r.status==="pending").length;
+
+  $("totalRequests").textContent=requests.length;
+  $("pendingRequests").textContent=pending;
+  $("otherRequests").textContent=requests.length-pending;
+
+  renderRequests(requests);
+}
+
+async function initAdmin(){
+  const {data,error}=await client.auth.getUser();
+
+  if(error||!data.user){
+    showSecurity("You are not logged in. Please sign in first.","error");
+    setTimeout(()=>window.location.replace("index.html"),1800);
+    return;
+  }
+
+  $("adminEmail").textContent="Logged in as: "+(data.user.email||"User");
+
+  const {data:isAdmin,error:adminError}=await client.rpc("is_growvia_admin");
+
+  if(adminError){
+    showSecurity("Admin verification failed: "+adminError.message,"error");
+    return;
+  }
+
+  if(isAdmin!==true){
+    showSecurity("Access denied. This account is not registered as a Growvia Admin.","error");
+    return;
+  }
+
+  showSecurity("Admin verified successfully. Secure Admin access granted.","success");
+  $("dashboardContent").classList.remove("hidden");
+
+  await loadRequests();
+}
+
+$("logoutBtn").addEventListener("click",async()=>{
+  await client.auth.signOut();
+  window.location.replace("index.html");
+});
+
+initAdmin();
+</script>
+</body>
+</html>
