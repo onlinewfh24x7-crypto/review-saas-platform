@@ -734,7 +734,92 @@ $("businessSelector").addEventListener("change",()=>{
 
 $("addBusinessBtn").addEventListener("click",startNewBusiness);
 
+
 $("businessForm").addEventListener("submit",async event=>{
+  event.preventDefault();
+
+  if(!currentUser)return;
+
+  const saveBtn=$("saveBtn");
+  saveBtn.disabled=true;
+
+  showMessage("Processing your request...","");
+
+  const business={
+    owner_user_id:currentUser.id,
+    business_name:$("businessName").value.trim(),
+    category:$("category").value,
+    phone:$("phone").value.trim(),
+    services_products:$("servicesProducts").value.trim(),
+    business_speciality:$("businessSpeciality").value.trim(),
+    additional_info:$("additionalInfo").value.trim()
+  };
+
+  if(!business.business_name||!business.category||!business.phone){
+    showMessage("Please complete all required business details.","error");
+    saveBtn.disabled=false;
+    return;
+  }
+
+  let result;
+
+  if(businessId){
+
+    // Existing Business: owner can update their own profile
+    result=await client
+      .from("businesses")
+      .update(business)
+      .eq("id",businessId)
+      .select("id");
+
+    if(result.error){
+      showMessage("Could not update profile: "+result.error.message,"error");
+    }else{
+      await loadBusinesses(businessId);
+      showMessage("Business profile updated successfully!","success");
+    }
+
+  }else{
+
+    // New Business: submit an Admin Approval Request
+    result=await client
+      .from("business_profile_requests")
+      .insert({
+        owner_user_id:currentUser.id,
+        business_name:business.business_name,
+        category:business.category,
+        phone:business.phone,
+        services_products:business.services_products,
+        business_speciality:business.business_speciality,
+        additional_info:business.additional_info,
+        status:"pending"
+      })
+      .select("id")
+      .single();
+
+    if(result.error){
+      showMessage("Request could not be submitted: "+result.error.message,"error");
+    }else{
+      showMessage(
+        "Business approval request submitted successfully! Your profile will be created after Growvia Admin approval.",
+        "success"
+      );
+
+      $("businessName").value="";
+      $("category").value="";
+      $("phone").value="";
+      $("servicesProducts").value="";
+      $("businessSpeciality").value="";
+      $("additionalInfo").value="";
+
+      $("formHeading").textContent="Request Submitted";
+      $("formSub").textContent="Your new business is waiting for Admin approval.";
+      saveBtn.textContent="Submit Another Request";
+    }
+  }
+
+  saveBtn.disabled=false;
+});
   event.preventDefault();
   if(!currentUser)return;
 
