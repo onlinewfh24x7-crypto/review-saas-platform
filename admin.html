@@ -4,18 +4,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Growvia | Admin Dashboard</title>
+<title>Growvia | Admin Control Center</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+
 <style>
 :root{
-  --navy:#071B49;--blue:#1257B8;--gold:#F5A623;
-  --bg:#F5F7FC;--white:#fff;--text:#17233B;
-  --muted:#7B879B;--border:#E8ECF3;--green:#159B70;
+ --navy:#071B49;--blue:#1257B8;--gold:#F5A623;
+ --bg:#F5F7FC;--white:#fff;--text:#17233B;
+ --muted:#7B879B;--border:#E8ECF3;
+ --green:#159B70;--red:#D64242;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,sans-serif}
-header{background:var(--navy);color:white;padding:22px 5%;display:flex;justify-content:space-between;align-items:center;gap:15px}
+header{
+ background:var(--navy);color:white;padding:22px 5%;
+ display:flex;justify-content:space-between;align-items:center;gap:15px
+}
 .brand{font:800 25px Poppins,sans-serif;letter-spacing:-1px}
 .brand span{color:var(--gold)}
 header small{display:block;color:#B7C5DD;font-size:10px;letter-spacing:2px}
@@ -23,6 +28,7 @@ button{font:inherit;cursor:pointer}
 .logout{background:#ffffff15;border:1px solid #ffffff40;color:white;padding:10px 15px;border-radius:8px}
 main{max-width:1150px;margin:auto;padding:35px 22px}
 h1{font:700 27px Poppins,sans-serif;color:var(--navy);margin:0 0 8px}
+h3{font:600 17px Poppins,sans-serif;color:var(--navy)}
 .sub{color:var(--muted);font-size:13px;margin:0 0 25px}
 .card{background:white;border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:20px;box-shadow:0 4px 16px #071b4908}
 .status{font-size:13px;line-height:1.7;padding:13px;border-radius:9px;background:#F2F5FA;color:#53627A}
@@ -35,12 +41,21 @@ h1{font:700 27px Poppins,sans-serif;color:var(--navy);margin:0 0 8px}
 .stat strong{display:block;font:700 25px Poppins;color:var(--navy)}
 .stat span{font-size:11px;color:var(--muted)}
 .request{border:1px solid var(--border);border-radius:12px;padding:18px;margin-top:13px}
-.request h3{margin:0 0 10px;color:var(--navy);font:600 16px Poppins}
-.details{display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12px;line-height:1.6}
+.request h3{margin:0 0 10px}
+.details{display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12px;line-height:1.6;margin-top:15px}
 .details b{color:#53627A}
 .pill{display:inline-block;padding:5px 10px;border-radius:20px;background:#FFF3D8;color:#8A5A00;font-size:10px;font-weight:700}
+.pill.approved{background:#E9F8F1;color:#147A52}
+.pill.rejected{background:#FFF0F0;color:#B4232C}
 .empty{padding:25px;text-align:center;color:var(--muted);font-size:13px}
 .hidden{display:none}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.action{border:0;border-radius:8px;padding:10px 17px;font-size:12px;font-weight:700;color:white}
+.approve{background:var(--green)}
+.reject{background:var(--red)}
+.action:disabled{opacity:.5;cursor:not-allowed}
+.refresh{background:var(--blue);color:white;border:0;padding:10px 15px;border-radius:8px;font-size:12px;font-weight:700}
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 @media(max-width:650px){
  header{padding:18px;align-items:flex-start}
  main{padding:25px 14px}
@@ -49,164 +64,257 @@ h1{font:700 27px Poppins,sans-serif;color:var(--navy);margin:0 0 8px}
 }
 </style>
 </head>
+
 <body>
 <header>
-  <div class="brand">GRO<span>VIA</span><small>ADMIN CONTROL CENTER</small></div>
-  <button class="logout" id="logoutBtn">Sign Out</button>
+ <div class="brand">GRO<span>VIA</span><small>ADMIN CONTROL CENTER</small></div>
+ <button class="logout" id="logoutBtn">Sign Out</button>
 </header>
 
 <main>
-  <h1>Admin Dashboard</h1>
-  <p class="sub">Manage Growvia business approvals and platform requests.</p>
+ <h1>Admin Dashboard</h1>
+ <p class="sub">Manage Growvia business approvals and platform requests.</p>
+
+ <section class="card">
+  <h3>Admin Security Verification</h3>
+  <div id="securityStatus" class="status">Checking your login and Admin permissions...</div>
+  <div class="meta" id="adminEmail"></div>
+ </section>
+
+ <div id="notice" class="status hidden"></div>
+
+ <section id="dashboardContent" class="hidden">
+  <div class="stats">
+   <div class="stat"><strong id="totalRequests">0</strong><span>Total Requests</span></div>
+   <div class="stat"><strong id="pendingRequests">0</strong><span>Pending Requests</span></div>
+   <div class="stat"><strong id="otherRequests">0</strong><span>Reviewed Requests</span></div>
+  </div>
 
   <section class="card">
-    <h3>Admin Security Verification</h3>
-    <div id="securityStatus" class="status">Checking your login and Admin permissions...</div>
-    <div class="meta" id="adminEmail"></div>
-  </section>
-
-  <section id="dashboardContent" class="hidden">
-    <div class="stats">
-      <div class="stat"><strong id="totalRequests">0</strong><span>Total Requests</span></div>
-      <div class="stat"><strong id="pendingRequests">0</strong><span>Pending Requests</span></div>
-      <div class="stat"><strong id="otherRequests">0</strong><span>Reviewed Requests</span></div>
+   <div class="section-head">
+    <div>
+     <h3>Business Profile Requests</h3>
+     <p class="sub">Review and approve new business applications.</p>
     </div>
-
-    <section class="card">
-      <h3>Business Profile Requests</h3>
-      <p class="sub">New business applications submitted by owners.</p>
-      <div id="requestList"><div class="empty">Loading requests...</div></div>
-    </section>
+    <button class="refresh" id="refreshBtn">Refresh Requests</button>
+   </div>
+   <div id="requestList"><div class="empty">Loading requests...</div></div>
   </section>
+ </section>
 </main>
 
 <script>
-const SUPABASE_URL = "https://zfnvxfztxhzxwwvkapys.supabase.co";
-const SUPABASE_KEY = "sb_publishable_X_Li2kPRPtqU7MeLqOSUpg_iCGLLpi1";
-const client = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const SUPABASE_URL="https://zfnvxfztxhzxwwvkapys.supabase.co";
+const SUPABASE_KEY="sb_publishable_X_Li2kPRPtqU7MeLqOSUpg_i1";
 
-const $ = id => document.getElementById(id);
+const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);
 
 function showSecurity(message,type){
-  $("securityStatus").textContent=message;
-  $("securityStatus").className="status "+(type||"");
+ $("securityStatus").textContent=message;
+ $("securityStatus").className="status "+(type||"");
+}
+
+function showNotice(message,type){
+ $("notice").textContent=message;
+ $("notice").className="status "+(type||"");
+ $("notice").classList.remove("hidden");
 }
 
 function safeText(value){
-  return String(value||"Not provided");
+ return value===null||value===undefined||value===""
+ ? "Not provided" : String(value);
+}
+
+function addDetail(container,label,value){
+ const line=document.createElement("div");
+ const bold=document.createElement("b");
+ bold.textContent=label+": ";
+ const span=document.createElement("span");
+ span.textContent=safeText(value);
+ line.append(bold,span);
+ container.append(line);
 }
 
 function renderRequests(requests){
-  const list=$("requestList");
-  list.replaceChildren();
+ const list=$("requestList");
+ list.replaceChildren();
 
-  if(!requests.length){
-    const empty=document.createElement("div");
-    empty.className="empty";
-    empty.textContent="No business requests found.";
-    list.append(empty);
-    return;
+ if(!requests.length){
+  const empty=document.createElement("div");
+  empty.className="empty";
+  empty.textContent="No business requests found.";
+  list.append(empty);
+  return;
+ }
+
+ requests.forEach(item=>{
+  const card=document.createElement("article");
+  card.className="request";
+
+  const heading=document.createElement("h3");
+  heading.textContent=safeText(item.business_name);
+
+  const badge=document.createElement("span");
+  badge.className="pill "+item.status;
+  badge.textContent=String(item.status||"pending").toUpperCase();
+
+  const details=document.createElement("div");
+  details.className="details";
+
+  addDetail(details,"Category",item.category);
+  addDetail(details,"Phone",item.phone);
+  addDetail(details,"Email",item.email);
+  addDetail(details,"City",item.city);
+  addDetail(details,"Address",item.address);
+  addDetail(details,"Services / Products",item.services_products);
+  addDetail(details,"Speciality",item.business_speciality);
+  addDetail(details,"Additional Information",item.additional_info);
+
+  const date=document.createElement("p");
+  date.className="meta";
+  date.textContent="Submitted: "+new Date(item.created_at).toLocaleString("en-IN");
+
+  card.append(heading,badge,details,date);
+
+  if(item.status==="pending"){
+   const actions=document.createElement("div");
+   actions.className="actions";
+
+   const approveBtn=document.createElement("button");
+   approveBtn.className="action approve";
+   approveBtn.textContent="Approve Business";
+
+   const rejectBtn=document.createElement("button");
+   rejectBtn.className="action reject";
+   rejectBtn.textContent="Reject Request";
+
+   approveBtn.addEventListener("click",()=>approveRequest(item.id,approveBtn,rejectBtn));
+   rejectBtn.addEventListener("click",()=>rejectRequest(item.id,approveBtn,rejectBtn));
+
+   actions.append(approveBtn,rejectBtn);
+   card.append(actions);
   }
 
-  requests.forEach(item=>{
-    const card=document.createElement("article");
-    card.className="request";
+  if(item.admin_note){
+   const note=document.createElement("p");
+   note.className="meta";
+   note.textContent="Admin Note: "+item.admin_note;
+   card.append(note);
+  }
 
-    const heading=document.createElement("h3");
-    heading.textContent=safeText(item.business_name);
-
-    const badge=document.createElement("span");
-    badge.className="pill";
-    badge.textContent=String(item.status||"pending").toUpperCase();
-
-    const details=document.createElement("div");
-    details.className="details";
-
-    const fields=[
-      ["Category",item.category],
-      ["Phone",item.phone],
-      ["Email",item.email],
-      ["City",item.city],
-      ["Address",item.address],
-      ["Services / Products",item.services_products],
-      ["Speciality",item.business_speciality],
-      ["Additional Information",item.additional_info]
-    ];
-
-    fields.forEach(([label,value])=>{
-      const line=document.createElement("div");
-      const bold=document.createElement("b");
-      bold.textContent=label+": ";
-      const span=document.createElement("span");
-      span.textContent=safeText(value);
-      line.append(bold,span);
-      details.append(line);
-    });
-
-    const date=document.createElement("p");
-    date.className="meta";
-    date.textContent="Submitted: "+new Date(item.created_at).toLocaleString("en-IN");
-
-    card.append(heading,badge,details,date);
-    list.append(card);
-  });
+  list.append(card);
+ });
 }
 
 async function loadRequests(){
-  $("requestList").textContent="Loading business requests...";
+ $("requestList").textContent="Loading business requests...";
+ $("refreshBtn").disabled=true;
 
-  const {data,error}=await client
-    .from("business_profile_requests")
-    .select("id,owner_user_id,business_name,category,phone,email,address,city,services_products,business_speciality,additional_info,status,created_at")
-    .order("created_at",{ascending:false});
+ const {data,error}=await client
+  .from("business_profile_requests")
+  .select("id,owner_user_id,business_name,category,phone,email,address,city,services_products,business_speciality,additional_info,status,admin_note,created_at")
+  .order("created_at",{ascending:false});
 
-  if(error){
-    $("requestList").textContent="Could not load requests: "+error.message;
-    return;
-  }
+ $("refreshBtn").disabled=false;
 
-  const requests=data||[];
-  const pending=requests.filter(r=>r.status==="pending").length;
+ if(error){
+  $("requestList").textContent="Could not load requests: "+error.message;
+  return;
+ }
 
-  $("totalRequests").textContent=requests.length;
-  $("pendingRequests").textContent=pending;
-  $("otherRequests").textContent=requests.length-pending;
+ const requests=data||[];
+ const pending=requests.filter(r=>r.status==="pending").length;
 
-  renderRequests(requests);
+ $("totalRequests").textContent=requests.length;
+ $("pendingRequests").textContent=pending;
+ $("otherRequests").textContent=requests.length-pending;
+
+ renderRequests(requests);
+}
+
+async function approveRequest(id,approveBtn,rejectBtn){
+ if(!confirm("Are you sure you want to APPROVE this business?"))return;
+
+ approveBtn.disabled=true;
+ rejectBtn.disabled=true;
+ showNotice("Approving business request...","warning");
+
+ const {data,error}=await client.rpc("approve_business_request",{
+  p_request_id:id
+ });
+
+ if(error){
+  showNotice("Approval failed: "+error.message,"error");
+  approveBtn.disabled=false;
+  rejectBtn.disabled=false;
+  return;
+ }
+
+ showNotice("Business approved successfully! Business ID: "+data,"success");
+ await loadRequests();
+}
+
+async function rejectRequest(id,approveBtn,rejectBtn){
+ const note=prompt("Enter rejection reason (optional):");
+ if(note===null)return;
+
+ if(!confirm("Are you sure you want to REJECT this request?"))return;
+
+ approveBtn.disabled=true;
+ rejectBtn.disabled=true;
+ showNotice("Rejecting business request...","warning");
+
+ const {data,error}=await client.rpc("reject_business_request",{
+  p_request_id:id,
+  p_admin_note:note.trim()||null
+ });
+
+ if(error){
+  showNotice("Rejection failed: "+error.message,"error");
+  approveBtn.disabled=false;
+  rejectBtn.disabled=false;
+  return;
+ }
+
+ showNotice("Business request rejected successfully.","success");
+ await loadRequests();
 }
 
 async function initAdmin(){
-  const {data,error}=await client.auth.getUser();
+ const {data,error}=await client.auth.getUser();
 
-  if(error||!data.user){
-    showSecurity("You are not logged in. Please sign in first.","error");
-    setTimeout(()=>window.location.replace("index.html"),1800);
-    return;
-  }
+ if(error||!data.user){
+  showSecurity("You are not logged in. Please sign in first.","error");
+  setTimeout(()=>window.location.replace("index.html"),1800);
+  return;
+ }
 
-  $("adminEmail").textContent="Logged in as: "+(data.user.email||"User");
+ $("adminEmail").textContent="Logged in as: "+(data.user.email||"User");
 
-  const {data:isAdmin,error:adminError}=await client.rpc("is_growvia_admin");
+ const {data:isAdmin,error:adminError}=await client.rpc("is_growvia_admin");
 
-  if(adminError){
-    showSecurity("Admin verification failed: "+adminError.message,"error");
-    return;
-  }
+ if(adminError){
+  showSecurity("Admin verification failed: "+adminError.message,"error");
+  return;
+ }
 
-  if(isAdmin!==true){
-    showSecurity("Access denied. This account is not registered as a Growvia Admin.","error");
-    return;
-  }
+ if(isAdmin!==true){
+  showSecurity("Access denied. This account is not registered as a Growvia Admin.","error");
+  return;
+ }
 
-  showSecurity("Admin verified successfully. Secure Admin access granted.","success");
-  $("dashboardContent").classList.remove("hidden");
+ showSecurity("Admin verified successfully. Secure Admin access granted.","success");
+ $("dashboardContent").classList.remove("hidden");
 
-  await loadRequests();
+ await loadRequests();
 }
 
+$("refreshBtn").addEventListener("click",loadRequests);
+
 $("logoutBtn").addEventListener("click",async()=>{
-  await client.auth.signOut();
-  window.location.replace("index.html");
+ await client.auth.signOut();
+ window.location.replace("index.html");
 });
 
 initAdmin();
