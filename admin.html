@@ -177,8 +177,8 @@ function renderRequests(requests){
 
   card.append(heading,badge,details,date);
 
-  if(item.status==="pending"){
-   const actions=document.createElement("div");
+  if(String(item.status || "").trim().toLowerCase()==="pending")
+  {   const actions=document.createElement("div");
    actions.className="actions";
 
    const approveBtn=document.createElement("button");
