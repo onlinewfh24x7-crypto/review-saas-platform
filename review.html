@@ -483,7 +483,7 @@ async function generateAiSuggestions() {
   list.replaceChildren();
   const loading = document.createElement('div');
   loading.className = 'helper';
-  loading.textContent = 'Loading available review ideas...';
+  loading.textContent = 'Loading 5 mixed-language review ideas...';
   list.appendChild(loading);
 
   try {
@@ -498,7 +498,8 @@ async function generateAiSuggestions() {
       .map(item => typeof item.suggestion_text === 'string'
         ? item.suggestion_text.trim()
         : '')
-      .filter(Boolean);
+      .filter(Boolean)
+      .slice(0, 5);
 
     if (!suggestions.length) {
       list.replaceChildren();
