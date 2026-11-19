@@ -329,7 +329,7 @@ let selectedRating = 0;
 let templateCategory = '';
 let currentBusiness = null;
 
-const AI_WORKER_URL = 'https://growvia-ai-worker.onlinewfh24x7.workers.dev';
+// Review suggestions are loaded securely from Supabase using the public RPC below.
 
 const pageContent = document.getElementById('pageContent');
 const pageMessage = document.getElementById('pageMessage');
@@ -475,45 +475,43 @@ async function generateAiSuggestions() {
   const list = document.getElementById('aiTemplateList');
   const language = document.getElementById('language').value;
 
-  if (!currentBusiness) {
-    list.textContent = 'Business details are not available. Please reload this page.';
+  if (!slug) {
+    list.textContent = 'Review page link is incomplete.';
     return;
   }
 
   list.replaceChildren();
   const loading = document.createElement('div');
   loading.className = 'helper';
-  loading.textContent = 'Preparing 5 personalised ideas for you...';
+  loading.textContent = 'Loading available review ideas...';
   list.appendChild(loading);
 
   try {
-    const response = await fetch(AI_WORKER_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        businessName: currentBusiness.business_name || '',
-        category: currentBusiness.category || '',
-        servicesProducts: currentBusiness.services_products || '',
-        businessSpeciality: currentBusiness.business_speciality || '',
-        additionalInfo: currentBusiness.additional_info || '',
-        language
-      })
+    const { data, error } = await db.rpc('get_public_review_suggestions', {
+      p_slug: slug,
+      p_language: language
     });
 
-    const result = await response.json();
-    if (!response.ok || !result.success || !Array.isArray(result.suggestions)) {
-      throw new Error(result.error || 'Review ideas are temporarily unavailable. Please write in your own words.');
-    }
+    if (error) throw error;
 
-    const suggestions = result.suggestions
-      .filter(item => typeof item === 'string' && item.trim())
-      .slice(0, 5);
+    const suggestions = (Array.isArray(data) ? data : [])
+      .map(item => typeof item.suggestion_text === 'string'
+        ? item.suggestion_text.trim()
+        : '')
+      .filter(Boolean);
 
-    if (suggestions.length !== 5) {
-      throw new Error('Could not prepare all 5 review ideas. Please try again later.');
+    if (!suggestions.length) {
+      list.replaceChildren();
+      const empty = document.createElement('div');
+      empty.className = 'helper';
+      empty.textContent =
+        'No active suggestions are available in this language right now. You can still write your feedback below.';
+      list.appendChild(empty);
+      return;
     }
 
     list.replaceChildren();
+
     suggestions.forEach((suggestion, index) => {
       const item = document.createElement('button');
       item.type = 'button';
@@ -533,14 +531,16 @@ async function generateAiSuggestions() {
         feedback.focus();
         feedback.scrollIntoView({ behavior: 'smooth', block: 'center' });
       });
+
       list.appendChild(item);
     });
   } catch (error) {
-    console.error('Growvia AI suggestions error:', error);
+    console.error('Growvia Supabase suggestions error:', error);
     list.replaceChildren();
     const message = document.createElement('div');
     message.className = 'helper';
-    message.textContent = 'Personalised ideas could not load right now. You can still write your feedback below.';
+    message.textContent =
+      'Review ideas could not load right now. You can still write your feedback below.';
     list.appendChild(message);
   }
 }
