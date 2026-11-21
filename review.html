@@ -202,45 +202,74 @@ textarea{min-height:125px;resize:vertical;line-height:1.8}
   .powered{font-size:9px}
 }
 
-/* Growvia design library themes: design_key is loaded from Supabase. */
-body.design-dark,body.design-charcoal{background:#09172f;color:#f5f7fb}
-.design-dark .main-card,.design-charcoal .main-card{background:#101f3c;border-color:#344968}
-.design-dark .content,.design-charcoal .content{color:#f5f7fb}
-.design-dark .form-section,.design-charcoal .form-section{background:#162846;border-color:#344968}
-.design-dark .field-label,.design-charcoal .field-label,.design-dark .section-heading h2,.design-charcoal .section-heading h2{color:#f3d69b}
-.design-dark input,.design-dark textarea,.design-dark select,.design-charcoal input,.design-charcoal textarea,.design-charcoal select{background:#0c1a32;color:#fff;border-color:#405675}
-.design-dark .suggestion,.design-charcoal .suggestion{background:#1b3151;color:#f4e8d2;border-color:#435a78}
-.design-dark .google-card,.design-charcoal .google-card{background:#172a48;border-color:#405675}
-.design-dark .google-card h3,.design-charcoal .google-card h3{color:#f3d69b}
-.design-gradient .hero{background:linear-gradient(130deg,var(--design-accent),#32245e 55%,#172a55)}
-.design-gradient .main-card{border-radius:30px}
-.design-glass .main-card{background:rgba(255,255,255,.82);backdrop-filter:blur(14px);border-radius:28px;box-shadow:0 25px 80px rgba(25,65,110,.15)}
-.design-glass .hero{background:linear-gradient(135deg,#173f68,#4f79a6)}
-.design-minimal .main-card{border-radius:8px;box-shadow:none;border-color:#e7e7e7}
-.design-minimal .hero{background:var(--design-bg);color:var(--design-text);border-bottom:1px solid #e5e5e5}
-.design-minimal .business-name,.design-minimal .hero-description,.design-minimal .business-meta{color:var(--design-text)}
-.design-minimal .eyebrow{color:var(--design-accent)}
-.design-corporate .main-card{border-radius:12px;border-top:5px solid var(--design-accent)}
-.design-corporate .hero{background:var(--design-bg);color:var(--design-text)}
-.design-corporate .business-name,.design-corporate .hero-description,.design-corporate .business-meta{color:var(--design-text)}
-.design-corporate .eyebrow{color:var(--design-accent)}
-.design-fresh .hero,.design-teal .hero,.design-ocean .hero,.design-sky .hero{background:linear-gradient(135deg,var(--design-accent),var(--design-text))}
-.design-sunset .hero{background:linear-gradient(135deg,#ef7b42,#9c3c55)}
-.design-earthy .hero{background:linear-gradient(135deg,#65452e,#a47b50)}
-.design-soft .hero,.design-cream .hero,.design-blush .hero,.design-lavender .hero,.design-rose .hero{background:var(--design-bg);color:var(--design-text)}
-.design-soft .business-name,.design-cream .business-name,.design-blush .business-name,.design-lavender .business-name,.design-rose .business-name,.design-soft .hero-description,.design-cream .hero-description,.design-blush .hero-description,.design-lavender .hero-description,.design-rose .hero-description,.design-soft .business-meta,.design-cream .business-meta,.design-blush .business-meta,.design-lavender .business-meta,.design-rose .business-meta{color:var(--design-text)}
-.design-soft .eyebrow,.design-cream .eyebrow,.design-blush .eyebrow,.design-lavender .eyebrow,.design-rose .eyebrow{color:var(--design-accent)}
-.design-royal .hero{background:linear-gradient(135deg,#26134b,#6543a6)}
-.design-blush .main-card,.design-rose .main-card{border-radius:28px;border-color:#e7bdc9}
+/* Complete business themes: each theme changes typography, layout, surfaces and details. */
+:root{--theme-font:'DM Sans',sans-serif;--theme-heading:'Cormorant Garamond',serif;--theme-radius:22px;--theme-card-radius:16px;--theme-shadow:0 24px 70px rgba(25,35,55,.10);--theme-page-bg:var(--cream);--theme-surface:#fff;--theme-pattern:none}
+body{font-family:var(--theme-font);background:var(--theme-pattern),var(--theme-page-bg)}
+.business-name,.section-heading h2,.google-card h3{font-family:var(--theme-heading)}
+.main-card{border-radius:var(--theme-radius);box-shadow:var(--theme-shadow)}
+.form-section,.google-card{border-radius:var(--theme-card-radius)}
+/* Clinic / professional */
+.design-classic,.design-corporate,.design-sky{--theme-font:'DM Sans',sans-serif;--theme-heading:'DM Sans',sans-serif;--theme-radius:14px;--theme-card-radius:12px;--theme-page-bg:#f2f7fb;--theme-pattern:radial-gradient(circle at 8% 12%,rgba(60,140,190,.10),transparent 28%)}
+.design-classic .hero{background:linear-gradient(135deg,#123c65,#1976a8)}
+.design-corporate .hero{background:linear-gradient(135deg,#12334d,#27627c);text-align:left;padding-left:clamp(25px,8vw,100px)}
+.design-corporate .hero-inner{max-width:760px;margin:auto}
+.design-sky .hero{background:linear-gradient(135deg,#4c9ed0,#245a92)}
+.design-classic .main-card,.design-sky .main-card{border:1px solid #d6e5ef}
+.design-corporate .main-card{border-top:6px solid #287c9d}
+/* Luxury / editorial */
+.design-dark,.design-charcoal,.design-burgundy,.design-royal{--theme-font:'DM Sans',sans-serif;--theme-heading:'Cormorant Garamond',serif;--theme-radius:4px;--theme-card-radius:4px;--theme-page-bg:#111827;--theme-shadow:0 25px 80px rgba(0,0,0,.28)}
+.design-dark .main-card,.design-charcoal .main-card,.design-burgundy .main-card,.design-royal .main-card{background:#172033;border-color:#45516a;color:#f4f0e8}
+.design-dark .hero{background:linear-gradient(135deg,#101b30,#243b5d)}
+.design-charcoal .hero{background:linear-gradient(135deg,#171717,#454545)}
 .design-burgundy .hero{background:linear-gradient(135deg,#3a1028,#7d294c)}
-.design-burgundy .main-card{border-color:#c9a76a}
-.design-classic .hero{background:linear-gradient(135deg,#243d67,#1257b8)}
-.design-classic .main-card{border-radius:18px}
-.design-ocean .main-card{border-color:#7fc7d6}
-.design-fresh .main-card,.design-teal .main-card{border-color:#a7d8c0}
-.design-sky .hero{background:linear-gradient(135deg,#4b9bd4,#245a92)}
+.design-royal .hero{background:linear-gradient(135deg,#26134b,#6543a6)}
+.design-dark .content,.design-charcoal .content,.design-burgundy .content,.design-royal .content{color:#f4f0e8}
+.design-dark .form-section,.design-charcoal .form-section,.design-burgundy .form-section,.design-royal .form-section,.design-dark .google-card,.design-charcoal .google-card,.design-burgundy .google-card,.design-royal .google-card{background:#202d43;border-color:#46536a}
+.design-dark .field-label,.design-charcoal .field-label,.design-burgundy .field-label,.design-royal .field-label,.design-dark .section-heading h2,.design-charcoal .section-heading h2,.design-burgundy .section-heading h2,.design-royal .section-heading h2{color:#f0d7a5}
+.design-dark input,.design-dark textarea,.design-dark select,.design-charcoal input,.design-charcoal textarea,.design-charcoal select,.design-burgundy input,.design-burgundy textarea,.design-burgundy select,.design-royal input,.design-royal textarea,.design-royal select{background:#101a2b;color:#fff;border-color:#526079}
+.design-dark .suggestion,.design-charcoal .suggestion,.design-burgundy .suggestion,.design-royal .suggestion{background:#26364e;color:#f4e8d2;border-color:#526079}
+.design-dark .google-card h3,.design-charcoal .google-card h3,.design-burgundy .google-card h3,.design-royal .google-card h3{color:#f0d7a5}
+/* Creative / gradient / glass */
+.design-gradient,.design-glass,.design-sunset{--theme-font:'DM Sans',sans-serif;--theme-heading:'Cormorant Garamond',serif;--theme-radius:30px;--theme-card-radius:22px;--theme-page-bg:#f3f0ff;--theme-pattern:radial-gradient(circle at 90% 8%,rgba(124,93,220,.16),transparent 30%)}
+.design-gradient .hero{background:linear-gradient(130deg,#7356d8,#32245e 58%,#172a55)}
+.design-gradient .main-card{border:0}
+.design-glass .main-card{background:rgba(255,255,255,.78);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.8)}
+.design-glass .hero{background:linear-gradient(135deg,#173f68,#6a8eb4)}
+.design-sunset .hero{background:linear-gradient(135deg,#ef7b42,#9c3c55)}
+/* Minimal / modern */
+.design-minimal,.design-cream,.design-earthy{--theme-font:'DM Sans',sans-serif;--theme-heading:'DM Sans',sans-serif;--theme-radius:6px;--theme-card-radius:6px;--theme-page-bg:#f7f5f0;--theme-shadow:none}
+.design-minimal .main-card{border:1px solid #e4e4e4;box-shadow:none}
+.design-minimal .hero{background:#fff;color:#202020;border-bottom:1px solid #e5e5e5;text-align:left;padding-left:clamp(25px,8vw,100px)}
+.design-minimal .business-name,.design-minimal .hero-description,.design-minimal .business-meta{color:#202020}
+.design-minimal .eyebrow{color:#555}
+.design-minimal .form-section{border:0;border-bottom:1px solid #eee;background:transparent}
+.design-cream .hero{background:linear-gradient(135deg,#eee2c9,#d7c19a);color:#453a2b}
+.design-cream .business-name,.design-cream .hero-description,.design-cream .business-meta{color:#453a2b}
+.design-earthy .hero{background:linear-gradient(135deg,#65452e,#a47b50)}
+/* Fresh / nature */
+.design-fresh,.design-teal,.design-ocean{--theme-font:'DM Sans',sans-serif;--theme-heading:'DM Sans',sans-serif;--theme-radius:24px;--theme-card-radius:18px;--theme-page-bg:#eef8f3;--theme-pattern:radial-gradient(circle at 12% 10%,rgba(36,151,113,.13),transparent 30%)}
+.design-fresh .hero{background:linear-gradient(135deg,#168c67,#155c54)}
+.design-teal .hero{background:linear-gradient(135deg,#087f83,#164c63)}
+.design-ocean .hero{background:linear-gradient(135deg,#087f9d,#164b75)}
+.design-fresh .main-card,.design-teal .main-card,.design-ocean .main-card{border-color:#b9dfd0}
+/* Ladies / beauty / boutique */
+.design-soft,.design-blush,.design-lavender,.design-rose{--theme-font:'DM Sans',sans-serif;--theme-heading:'Cormorant Garamond',serif;--theme-radius:28px;--theme-card-radius:20px;--theme-page-bg:#fff4f5;--theme-pattern:radial-gradient(circle at 10% 8%,rgba(218,151,171,.18),transparent 32%),radial-gradient(circle at 90% 85%,rgba(201,167,106,.12),transparent 30%)}
+.design-soft .hero{background:linear-gradient(135deg,#fff0f2,#f4dce4);color:#593847}
+.design-blush .hero{background:linear-gradient(135deg,#f4d7df,#d99cac);color:#593847}
+.design-lavender .hero{background:linear-gradient(135deg,#eee5fb,#cbb9e8);color:#49375e}
+.design-rose .hero{background:linear-gradient(135deg,#f8e4e8,#d9a6b4);color:#613846}
+.design-soft .business-name,.design-soft .hero-description,.design-soft .business-meta,.design-blush .business-name,.design-blush .hero-description,.design-blush .business-meta,.design-lavender .business-name,.design-lavender .hero-description,.design-lavender .business-meta,.design-rose .business-name,.design-rose .hero-description,.design-rose .business-meta{color:inherit}
+.design-soft .eyebrow,.design-blush .eyebrow,.design-lavender .eyebrow,.design-rose .eyebrow{color:#8a5268}
+.design-blush .main-card,.design-rose .main-card{border-color:#e7bdc9}
 .design-lavender .main-card{border-color:#d7c6ef}
-.design-cream .main-card{border-color:#e4d4b5}
+/* Shared business-specific details */
+.design-corporate .logo-frame,.design-minimal .logo-frame{border-radius:12px}
+.design-blush .logo-frame,.design-rose .logo-frame,.design-soft .logo-frame{border-radius:28px}
+.design-dark .logo-frame,.design-charcoal .logo-frame{border-radius:12px;border-color:#d0b16f}
+.design-minimal .suggestion,.design-corporate .suggestion{border-radius:6px}
+.design-gradient .suggestion,.design-glass .suggestion,.design-soft .suggestion,.design-blush .suggestion,.design-lavender .suggestion,.design-rose .suggestion{border-radius:18px}
+.design-dark .section-heading p,.design-charcoal .section-heading p,.design-burgundy .section-heading p,.design-royal .section-heading p{color:#c3cad5}
+
 
 </style>
 </head>
@@ -462,6 +491,12 @@ function applyReviewDesign(designData) {
   root.style.setProperty('--design-accent', config.accent || '#1257B8');
   root.style.setProperty('--design-text', config.text || '#17233B');
   root.style.setProperty('--wine', config.accent || '#45172d');
+  const fontMap = { sans: "'DM Sans',sans-serif", serif: "'Cormorant Garamond',serif", elegant: "'Cormorant Garamond',serif", modern: "'DM Sans',sans-serif" };
+  if (fontMap[config.font]) root.style.setProperty('--theme-font', fontMap[config.font]);
+  if (fontMap[config.heading_font]) root.style.setProperty('--theme-heading', fontMap[config.heading_font]);
+  if (config.radius && /^\d{1,2}px$/.test(config.radius)) root.style.setProperty('--theme-radius', config.radius);
+  if (config.card_radius && /^\d{1,2}px$/.test(config.card_radius)) root.style.setProperty('--theme-card-radius', config.card_radius);
+  if (config.page_background) root.style.setProperty('--theme-page-bg', config.page_background);
   const metaTheme = document.querySelector('meta[name="theme-color"]');
   if (metaTheme) metaTheme.content = config.background || '#FFFFFF';
 }
@@ -605,6 +640,8 @@ function renderNextSuggestionBatch() {
   const start = displayedSuggestionsCount;
   const end = Math.min(start + SUGGESTIONS_PER_PAGE, allReviewSuggestions.length);
 
+  // Replace the previous batch; keep the More button outside the suggestion list.
+  list.replaceChildren();
   for (let index = start; index < end; index++) {
     const suggestion = allReviewSuggestions[index];
     const item = document.createElement('button');
@@ -632,6 +669,7 @@ function renderNextSuggestionBatch() {
   displayedSuggestionsCount = end;
 
   let moreButton = document.getElementById('moreSuggestionsButton');
+  if (moreButton && moreButton.parentElement === list) list.parentElement.appendChild(moreButton);
   if (displayedSuggestionsCount < allReviewSuggestions.length) {
     if (!moreButton) {
       moreButton = document.createElement('button');
