@@ -139,6 +139,10 @@ textarea{min-height:125px;resize:vertical;line-height:1.8}
   font-size:11px;line-height:1.6;transition:.2s;
 }
 .suggestion:hover{border-color:var(--gold);background:#f8f0e2}
+.more-suggestions-btn{display:block;margin:14px auto 0;padding:11px 20px;border:1px solid var(--gold);border-radius:999px;background:#fffaf2;color:var(--wine);font-size:11px;font-weight:700;letter-spacing:.5px;transition:.2s}
+.more-suggestions-btn:hover{background:var(--wine);color:#fff;border-color:var(--wine)}
+.more-suggestions-btn:focus-visible{outline:3px solid rgba(201,167,106,.45);outline-offset:3px}
+.more-suggestions-btn[hidden]{display:none}
 .ai-results{margin-top:10px}
 .suggestion small{
   display:block;color:#aa8b5b;font-weight:700;
@@ -369,6 +373,9 @@ const slug = new URLSearchParams(location.search).get('slug');
 let selectedRating = 0;
 let templateCategory = '';
 let currentBusiness = null;
+let allReviewSuggestions = [];
+let displayedSuggestionsCount = 0;
+const SUGGESTIONS_PER_PAGE = 5;
 
 // Review suggestions are loaded securely from Supabase using the public RPC below.
 
@@ -540,6 +547,10 @@ async function loadPage() {
 async function generateAiSuggestions() {
   const list = document.getElementById('aiTemplateList');
   const language = document.getElementById('language').value;
+  allReviewSuggestions = [];
+  displayedSuggestionsCount = 0;
+  const previousMoreButton = document.getElementById('moreSuggestionsButton');
+  if (previousMoreButton) previousMoreButton.hidden = true;
 
   if (!slug) {
     list.textContent = 'Review page link is incomplete.';
@@ -549,26 +560,26 @@ async function generateAiSuggestions() {
   list.replaceChildren();
   const loading = document.createElement('div');
   loading.className = 'helper';
-  loading.textContent = 'Loading 5 mixed-language review ideas...';
+  loading.textContent = 'Loading review ideas...';
   list.appendChild(loading);
 
   try {
-    const { data, error } = await db.rpc('get_public_review_suggestions', {
+    // Fetch the complete approved list; the page displays it in groups of five.
+    const { data, error } = await db.rpc('get_public_review_suggestions_all', {
       p_slug: slug,
       p_language: language
     });
 
     if (error) throw error;
 
-    const suggestions = (Array.isArray(data) ? data : [])
+    allReviewSuggestions = (Array.isArray(data) ? data : [])
       .map(item => typeof item.suggestion_text === 'string'
         ? item.suggestion_text.trim()
         : '')
-      .filter(Boolean)
-      .slice(0, 5);
+      .filter(Boolean);
 
-    if (!suggestions.length) {
-      list.replaceChildren();
+    list.replaceChildren();
+    if (!allReviewSuggestions.length) {
       const empty = document.createElement('div');
       empty.className = 'helper';
       empty.textContent =
@@ -577,30 +588,7 @@ async function generateAiSuggestions() {
       return;
     }
 
-    list.replaceChildren();
-
-    suggestions.forEach((suggestion, index) => {
-      const item = document.createElement('button');
-      item.type = 'button';
-      item.className = 'suggestion';
-      item.setAttribute('aria-label', 'Use review idea ' + (index + 1));
-
-      const number = document.createElement('small');
-      number.textContent = 'REVIEW IDEA ' + String(index + 1).padStart(2, '0');
-
-      const preview = document.createElement('span');
-      preview.textContent = suggestion;
-      item.append(number, preview);
-
-      item.addEventListener('click', () => {
-        const feedback = document.getElementById('feedback');
-        feedback.value = suggestion;
-        feedback.focus();
-        feedback.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      });
-
-      list.appendChild(item);
-    });
+    renderNextSuggestionBatch();
   } catch (error) {
     console.error('Growvia Supabase suggestions error:', error);
     list.replaceChildren();
@@ -609,6 +597,56 @@ async function generateAiSuggestions() {
     message.textContent =
       'Review ideas could not load right now. You can still write your feedback below.';
     list.appendChild(message);
+  }
+}
+
+function renderNextSuggestionBatch() {
+  const list = document.getElementById('aiTemplateList');
+  const start = displayedSuggestionsCount;
+  const end = Math.min(start + SUGGESTIONS_PER_PAGE, allReviewSuggestions.length);
+
+  for (let index = start; index < end; index++) {
+    const suggestion = allReviewSuggestions[index];
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'suggestion';
+    item.setAttribute('aria-label', 'Use review idea ' + (index + 1));
+
+    const number = document.createElement('small');
+    number.textContent = 'REVIEW IDEA ' + String(index + 1).padStart(2, '0');
+
+    const preview = document.createElement('span');
+    preview.textContent = suggestion;
+    item.append(number, preview);
+
+    item.addEventListener('click', () => {
+      const feedback = document.getElementById('feedback');
+      feedback.value = suggestion;
+      feedback.focus();
+      feedback.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+
+    list.appendChild(item);
+  }
+
+  displayedSuggestionsCount = end;
+
+  let moreButton = document.getElementById('moreSuggestionsButton');
+  if (displayedSuggestionsCount < allReviewSuggestions.length) {
+    if (!moreButton) {
+      moreButton = document.createElement('button');
+      moreButton.type = 'button';
+      moreButton.id = 'moreSuggestionsButton';
+      moreButton.className = 'more-suggestions-btn';
+      moreButton.textContent = 'MORE SUGGESTIONS  ↓';
+      moreButton.addEventListener('click', renderNextSuggestionBatch);
+      list.parentElement.appendChild(moreButton);
+    }
+    moreButton.hidden = false;
+    const remaining = allReviewSuggestions.length - displayedSuggestionsCount;
+    moreButton.textContent = 'MORE SUGGESTIONS  ↓ (' + remaining + ' remaining)';
+  } else if (moreButton) {
+    moreButton.hidden = true;
   }
 }
 
