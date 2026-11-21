@@ -128,11 +128,12 @@ function renderDesignGallery(){
  designs.forEach(design=>{
   const cfg=design.design_config||{};const bg=cfg.background||"#FFFFFF";const accent=cfg.accent||"#1257B8";const fg=cfg.text||"#17233B";const selected=design.design_key===selectedDesignKey;
   const card=document.createElement("article");card.className="design-card"+(selected?" selected":"");
-  const preview=document.createElement("div");preview.className="design-preview";preview.style.background=bg;preview.style.color=fg;preview.style.border="1px solid #E8ECF3";
-  const title=document.createElement("div");title.className="preview-title";title.textContent="Your Experience Matters";
-  const line=document.createElement("div");line.className="preview-line";line.textContent="Share your genuine experience with us.";
-  const stars=document.createElement("div");stars.className="preview-stars";stars.style.color=accent;stars.textContent="★★★★★";preview.append(title,line,stars);
-  const info=document.createElement("div");info.className="design-info";const name=document.createElement("strong");name.textContent=design.design_name;const category=document.createElement("span");category.textContent=design.design_category==="ladies"?"LADIES SPECIAL":"GENERAL";info.append(name,category);
+  const preview=document.createElement("div");preview.className="design-preview";preview.style.background=cfg.page_background||bg;preview.style.color=fg;preview.style.border="1px solid #E8ECF3";preview.style.borderRadius=cfg.radius||"16px";preview.style.fontFamily=(cfg.font==="serif"?"Georgia,serif":"Arial,sans-serif");
+  const eyebrow=document.createElement("small");eyebrow.textContent=cfg.eyebrow||"A MOMENT TO SHARE";eyebrow.style.display="block";eyebrow.style.letterSpacing="2px";eyebrow.style.color=accent;eyebrow.style.fontSize="8px";
+  const title=document.createElement("div");title.className="preview-title";title.textContent=cfg.preview_title||"Your Experience Matters";title.style.fontFamily=cfg.heading_font==="serif"?"Georgia,serif":"Arial,sans-serif";title.style.fontWeight=cfg.heading_weight||"700";
+  const line=document.createElement("div");line.className="preview-line";line.textContent=cfg.preview_subtitle||"Share your genuine experience with us.";
+  const stars=document.createElement("div");stars.className="preview-stars";stars.style.color=accent;stars.textContent="★★★★★";preview.append(eyebrow,title,line,stars);
+  const info=document.createElement("div");info.className="design-info";const name=document.createElement("strong");name.textContent=design.design_name;const category=document.createElement("span");category.textContent=(design.design_category==="ladies"?"LADIES SPECIAL":"GENERAL")+" · "+(cfg.layout_label||"Classic layout")+" · "+(cfg.font_label||"Sans font");info.append(name,category);
   const btn=document.createElement("button");btn.type="button";btn.className="design-select-btn";btn.textContent=design.is_premium?"Premium Design":(selected?"✓ Currently Selected":"Select This Design");btn.disabled=!!design.is_premium||selected;
   if(!design.is_premium&&!selected)btn.addEventListener("click",()=>saveSelectedDesign(design.design_key));
   card.append(preview,info,btn);gallery.append(card);
