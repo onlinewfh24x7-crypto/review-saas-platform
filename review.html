@@ -197,6 +197,47 @@ textarea{min-height:125px;resize:vertical;line-height:1.8}
   .star{font-size:39px}
   .powered{font-size:9px}
 }
+
+/* Growvia design library themes: design_key is loaded from Supabase. */
+body.design-dark,body.design-charcoal{background:#09172f;color:#f5f7fb}
+.design-dark .main-card,.design-charcoal .main-card{background:#101f3c;border-color:#344968}
+.design-dark .content,.design-charcoal .content{color:#f5f7fb}
+.design-dark .form-section,.design-charcoal .form-section{background:#162846;border-color:#344968}
+.design-dark .field-label,.design-charcoal .field-label,.design-dark .section-heading h2,.design-charcoal .section-heading h2{color:#f3d69b}
+.design-dark input,.design-dark textarea,.design-dark select,.design-charcoal input,.design-charcoal textarea,.design-charcoal select{background:#0c1a32;color:#fff;border-color:#405675}
+.design-dark .suggestion,.design-charcoal .suggestion{background:#1b3151;color:#f4e8d2;border-color:#435a78}
+.design-dark .google-card,.design-charcoal .google-card{background:#172a48;border-color:#405675}
+.design-dark .google-card h3,.design-charcoal .google-card h3{color:#f3d69b}
+.design-gradient .hero{background:linear-gradient(130deg,var(--design-accent),#32245e 55%,#172a55)}
+.design-gradient .main-card{border-radius:30px}
+.design-glass .main-card{background:rgba(255,255,255,.82);backdrop-filter:blur(14px);border-radius:28px;box-shadow:0 25px 80px rgba(25,65,110,.15)}
+.design-glass .hero{background:linear-gradient(135deg,#173f68,#4f79a6)}
+.design-minimal .main-card{border-radius:8px;box-shadow:none;border-color:#e7e7e7}
+.design-minimal .hero{background:var(--design-bg);color:var(--design-text);border-bottom:1px solid #e5e5e5}
+.design-minimal .business-name,.design-minimal .hero-description,.design-minimal .business-meta{color:var(--design-text)}
+.design-minimal .eyebrow{color:var(--design-accent)}
+.design-corporate .main-card{border-radius:12px;border-top:5px solid var(--design-accent)}
+.design-corporate .hero{background:var(--design-bg);color:var(--design-text)}
+.design-corporate .business-name,.design-corporate .hero-description,.design-corporate .business-meta{color:var(--design-text)}
+.design-corporate .eyebrow{color:var(--design-accent)}
+.design-fresh .hero,.design-teal .hero,.design-ocean .hero,.design-sky .hero{background:linear-gradient(135deg,var(--design-accent),var(--design-text))}
+.design-sunset .hero{background:linear-gradient(135deg,#ef7b42,#9c3c55)}
+.design-earthy .hero{background:linear-gradient(135deg,#65452e,#a47b50)}
+.design-soft .hero,.design-cream .hero,.design-blush .hero,.design-lavender .hero,.design-rose .hero{background:var(--design-bg);color:var(--design-text)}
+.design-soft .business-name,.design-cream .business-name,.design-blush .business-name,.design-lavender .business-name,.design-rose .business-name,.design-soft .hero-description,.design-cream .hero-description,.design-blush .hero-description,.design-lavender .hero-description,.design-rose .hero-description,.design-soft .business-meta,.design-cream .business-meta,.design-blush .business-meta,.design-lavender .business-meta,.design-rose .business-meta{color:var(--design-text)}
+.design-soft .eyebrow,.design-cream .eyebrow,.design-blush .eyebrow,.design-lavender .eyebrow,.design-rose .eyebrow{color:var(--design-accent)}
+.design-royal .hero{background:linear-gradient(135deg,#26134b,#6543a6)}
+.design-blush .main-card,.design-rose .main-card{border-radius:28px;border-color:#e7bdc9}
+.design-burgundy .hero{background:linear-gradient(135deg,#3a1028,#7d294c)}
+.design-burgundy .main-card{border-color:#c9a76a}
+.design-classic .hero{background:linear-gradient(135deg,#243d67,#1257b8)}
+.design-classic .main-card{border-radius:18px}
+.design-ocean .main-card{border-color:#7fc7d6}
+.design-fresh .main-card,.design-teal .main-card{border-color:#a7d8c0}
+.design-sky .hero{background:linear-gradient(135deg,#4b9bd4,#245a92)}
+.design-lavender .main-card{border-color:#d7c6ef}
+.design-cream .main-card{border-color:#e4d4b5}
+
 </style>
 </head>
 
@@ -401,6 +442,23 @@ function getTemplateCategory(category) {
 }
 
 
+function applyReviewDesign(designData) {
+  if (!designData) return;
+  const config = designData.design_config || designData.config || (designData.style ? designData : {});
+  const style = String(config.style || 'classic').toLowerCase().replace(/[^a-z0-9-]/g, '');
+  const allowed = ['classic','dark','gradient','soft','corporate','fresh','glass','minimal','royal','ocean','sunset','earthy','teal','charcoal','sky','cream','blush','burgundy','lavender','rose'];
+  const selectedStyle = allowed.includes(style) ? style : 'classic';
+  document.body.classList.remove(...Array.from(document.body.classList).filter(c => c.startsWith('design-')));
+  document.body.classList.add('design-' + selectedStyle);
+  const root = document.documentElement;
+  root.style.setProperty('--design-bg', config.background || '#FFFFFF');
+  root.style.setProperty('--design-accent', config.accent || '#1257B8');
+  root.style.setProperty('--design-text', config.text || '#17233B');
+  root.style.setProperty('--wine', config.accent || '#45172d');
+  const metaTheme = document.querySelector('meta[name="theme-color"]');
+  if (metaTheme) metaTheme.content = config.background || '#FFFFFF';
+}
+
 async function loadPage() {
   if (!slug) {
     showPageMessage('This review link is incomplete.');
@@ -417,6 +475,14 @@ async function loadPage() {
     if (!data) {
       showPageMessage('This Review Page is not published yet.');
       return;
+    }
+
+    try {
+      const designResult = await db.rpc('get_public_review_design', { p_slug: slug });
+      if (!designResult.error) applyReviewDesign(designResult.data);
+      else console.warn('Review design could not be loaded; using default design.', designResult.error);
+    } catch (designError) {
+      console.warn('Review design could not be loaded; using default design.', designError);
     }
 
     document.documentElement.style.setProperty(
