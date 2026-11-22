@@ -423,6 +423,97 @@ body{font-family:var(--theme-font);background:var(--theme-pattern),var(--theme-p
 
 /* Admin-authored per-theme custom values override the family defaults. */
 
+
+
+/* Growvia theme layout alignment patch — keep each theme's own composition intact. */
+/* Left/editorial hero layouts: logo, description and contact details share one axis. */
+.design-dark .hero-inner,
+.design-charcoal .hero-inner,
+.design-burgundy .hero-inner,
+.design-soft .hero-inner,
+.design-minimal .hero-inner,
+.design-earthy .hero-inner,
+.design-teal .hero-inner {
+  text-align:left;
+}
+.design-dark .logo-frame,.design-charcoal .logo-frame,
+.design-burgundy .logo-frame,.design-soft .logo-frame,
+.design-minimal .logo-frame,.design-earthy .logo-frame,
+.design-teal .logo-frame {
+  margin-left:0;
+  margin-right:0;
+}
+.design-dark .hero-description,.design-charcoal .hero-description,
+.design-burgundy .hero-description,.design-soft .hero-description,
+.design-minimal .hero-description,.design-earthy .hero-description,
+.design-teal .hero-description {
+  margin-left:0;
+  margin-right:0;
+  max-width:560px;
+  text-align:left;
+}
+.design-dark .business-meta,.design-charcoal .business-meta,
+.design-burgundy .business-meta,.design-soft .business-meta,
+.design-minimal .business-meta,.design-earthy .business-meta,
+.design-teal .business-meta {
+  margin-left:0;
+  margin-right:0;
+  text-align:left;
+}
+/* Corporate uses a two-column logo/content composition; align all text within column two. */
+.design-corporate .hero-description,
+.design-corporate .business-meta {
+  margin-left:0;
+  margin-right:0;
+  text-align:left;
+}
+.design-corporate .logo-frame { margin-left:0; margin-right:0; }
+/* Keep the centered compositions truly centered, including descriptive text. */
+.design-classic .hero-inner,.design-gradient .hero-inner,
+.design-fresh .hero-inner,.design-glass .hero-inner,
+.design-royal .hero-inner,.design-ocean .hero-inner,
+.design-sunset .hero-inner,.design-sky .hero-inner,
+.design-cream .hero-inner,.design-blush .hero-inner,
+.design-lavender .hero-inner,.design-rose .hero-inner {
+  text-align:center;
+}
+.design-classic .logo-frame,.design-gradient .logo-frame,
+.design-fresh .logo-frame,.design-glass .logo-frame,
+.design-royal .logo-frame,.design-ocean .logo-frame,
+.design-sunset .logo-frame,.design-sky .logo-frame,
+.design-cream .logo-frame,.design-blush .logo-frame,
+.design-lavender .logo-frame,.design-rose .logo-frame {
+  margin-left:auto;
+  margin-right:auto;
+}
+.design-classic .hero-description,.design-gradient .hero-description,
+.design-fresh .hero-description,.design-glass .hero-description,
+.design-royal .hero-description,.design-ocean .hero-description,
+.design-sunset .hero-description,.design-sky .hero-description,
+.design-cream .hero-description,.design-blush .hero-description,
+.design-lavender .hero-description,.design-rose .hero-description {
+  margin-left:auto;
+  margin-right:auto;
+  text-align:center;
+}
+@media(max-width:600px) {
+  .design-corporate .hero-inner {
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    text-align:left;
+  }
+  .design-corporate .logo-frame { margin:0 0 14px; }
+  .design-corporate .hero-description,
+  .design-corporate .business-meta { margin-left:0; margin-right:0; }
+  .design-dark .hero,.design-charcoal .hero,.design-burgundy .hero,
+  .design-soft .hero,.design-minimal .hero,.design-earthy .hero,
+  .design-teal .hero {
+    padding-left:24px;
+    padding-right:24px;
+  }
+}
+
 </style>
 </head>
 
