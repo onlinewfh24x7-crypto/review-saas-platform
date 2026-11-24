@@ -21,6 +21,30 @@
 .live-card[data-style="royal"] .live-hero{border-bottom:3px double #d7bf83}
 .live-card[data-style="cream"] .live-hero{border-bottom:1px solid #d7c6a7}
 .live-card[data-style="rose"] .live-logo,.live-card[data-style="blush"] .live-logo{border-radius:30px}
+
+/* Universal Theme Engine controls in the admin live preview */
+.live-card[data-pattern="glow"]{background-image:radial-gradient(circle at 10% 10%,#ffffff99,transparent 42%)}
+.live-card[data-pattern="dots"]{background-image:radial-gradient(#94a3b833 1px,transparent 1px);background-size:14px 14px}
+.live-card[data-pattern="grid"]{background-image:linear-gradient(#94a3b822 1px,transparent 1px),linear-gradient(90deg,#94a3b822 1px,transparent 1px);background-size:18px 18px}
+
+.live-card[data-header="editorial"] .live-hero{text-align:left}
+.live-card[data-header="split"] .live-hero{display:grid;grid-template-columns:64px 1fr;column-gap:12px;text-align:left;align-items:center}
+.live-card[data-header="split"] .live-logo{grid-row:1/5;margin:0}
+.live-card[data-header="compact"] .live-hero{padding-top:16px;padding-bottom:16px}
+.live-card[data-card="outlined"]{box-shadow:none;border:2px solid #aeb8c5}
+.live-card[data-card="flat"]{box-shadow:none;border:0;border-radius:0}
+.live-card[data-card="glass"]{background:#ffffff9c;backdrop-filter:blur(12px);border:1px solid #ffffff}
+.live-card[data-button="pill"] .live-submit{border-radius:999px!important}
+.live-card[data-button="square"] .live-submit{border-radius:2px!important}
+.live-card[data-field="filled"] .live-field,.live-card[data-field="filled"] .live-suggestion{background:#edf2f7}
+.live-card[data-field="underline"] .live-field{border:0;border-bottom:2px solid #94a3b8;border-radius:0;background:transparent}
+.live-card[data-rating="large"] .live-field:nth-of-type(2){font-size:16px;padding:16px}
+.live-card[data-rating="compact"] .live-field:nth-of-type(2){font-size:9px;padding:7px}
+.live-card[data-spacing="compact"] .live-body{padding:12px}
+.live-card[data-spacing="spacious"] .live-body{padding:30px}
+.live-card[data-logo="circle"] .live-logo{border-radius:50%}
+.live-card[data-logo="rounded"] .live-logo{border-radius:14px}
+.live-card[data-logo="square"] .live-logo{border-radius:2px}
 @media(max-width:760px){.preview-layout{grid-template-columns:1fr}}@media(max-width:650px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}.wrap{padding:17px 11px}.panel{padding:16px}}
 /* Match the public page's 20 layout families in the Admin preview */
 .live-card[data-style="classic"] .live-hero{background:linear-gradient(135deg,#123c65,#1976a8)!important}
@@ -87,6 +111,16 @@
 <div class="field"><label>FONT LABEL</label><input id="fontLabel" maxlength="60" placeholder="e.g. Modern Sans + Playfair"></div>
 <div class="field"><label>MAIN CARD RADIUS</label><select id="radius"><option value="4px">Sharp 4px</option><option value="8px">Soft 8px</option><option value="14px">Modern 14px</option><option value="22px" selected>Rounded 22px</option><option value="30px">Extra Rounded 30px</option></select></div>
 <div class="field"><label>INNER CARD RADIUS</label><select id="cardRadius"><option value="4px">Sharp 4px</option><option value="8px">Soft 8px</option><option value="12px">Modern 12px</option><option value="18px" selected>Rounded 18px</option><option value="24px">Extra Rounded 24px</option></select></div>
+<div class="field wide"><div class="notice"><b>ADVANCED UNIVERSAL DESIGN CONTROLS</b><br>These settings are saved inside this theme configuration and used by the shared review-page theme engine.</div></div>
+<div class="field"><label>HEADER COMPOSITION</label><select id="headerStyle"><option value="centered">Centered</option><option value="editorial">Editorial / Left aligned</option><option value="split">Split Logo + Content</option><option value="compact">Compact Header</option></select></div>
+<div class="field"><label>CARD PRESENTATION</label><select id="cardStyle"><option value="elevated">Elevated Shadow</option><option value="outlined">Outlined</option><option value="flat">Flat / Minimal</option><option value="glass">Glass Surface</option></select></div>
+<div class="field"><label>BUTTON SHAPE</label><select id="buttonStyle"><option value="rounded">Rounded</option><option value="pill">Pill</option><option value="square">Square</option></select></div>
+<div class="field"><label>FORM FIELD STYLE</label><select id="fieldStyle"><option value="outlined">Outlined</option><option value="filled">Filled</option><option value="underline">Underline</option></select></div>
+<div class="field"><label>STAR RATING STYLE</label><select id="ratingStyle"><option value="classic">Classic Stars</option><option value="large">Large Stars</option><option value="compact">Compact Stars</option></select></div>
+<div class="field"><label>CONTENT SPACING</label><select id="spacing"><option value="compact">Compact</option><option value="balanced">Balanced</option><option value="spacious">Spacious</option></select></div>
+<div class="field"><label>BACKGROUND DECORATION</label><select id="backgroundPattern"><option value="none">None</option><option value="glow">Soft Glow</option><option value="dots">Subtle Dots</option><option value="grid">Fine Grid</option></select></div>
+<div class="field"><label>BUSINESS LOGO SHAPE</label><select id="logoShape"><option value="theme">Theme Default</option><option value="circle">Circle</option><option value="rounded">Rounded Square</option><option value="square">Square</option></select></div>
+<div class="field wide"><div class="notice"><b>THEME STRUCTURE & CUSTOMER EXPERIENCE</b><br>Header, cards, buttons, form fields, rating display, spacing, background and logo shape.</div></div>
 <div class="field wide"><label>DESCRIPTION</label><textarea id="description" maxlength="250" placeholder="Describe the theme and its suitable business types"></textarea></div>
 <div class="field"><label>TARGET BUSINESSES (COMMA SEPARATED)</label><input id="targets" placeholder="clinic, dental, healthcare"></div>
 </div>
@@ -119,7 +153,7 @@ const SUPABASE_KEY='sb_publishable_X_Li2kPRPtqU7MeLqOSUpg_iCGLLpi1';
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const $=id=>document.getElementById(id);
 let adminReady=false, editingId=null, designs=[], businesses=[], reviewPages=[], busy=false;
-const fields=['designKey','designName','designCategory','style','pageBackground','background','accent','textColor','font','headingFont','layoutLabel','fontLabel','radius','cardRadius','description','targets','order','premium','active'];
+const fields=['designKey','designName','designCategory','style','pageBackground','background','accent','textColor','font','headingFont','layoutLabel','fontLabel','radius','cardRadius','headerStyle','cardStyle','buttonStyle','fieldStyle','ratingStyle','spacing','backgroundPattern','logoShape','description','targets','order','premium','active'];
 const fontCss={
  'dm-sans':"'DM Sans',sans-serif",manrope:"'Manrope',sans-serif",montserrat:"'Montserrat',sans-serif",nunito:"'Nunito',sans-serif",lora:"'Lora',serif",poppins:"'Poppins',sans-serif",playfair:"'Playfair Display',serif",cormorant:"'Cormorant Garamond',serif"
 };
@@ -127,15 +161,15 @@ function msg(id,text){$(id).textContent=text;}
 function safeColor(value,fallback){return /^#[0-9a-f]{6}$/i.test(value||'')?value:fallback;}
 function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
 function readConfig(){return {
- style:$('style').value,background:safeColor($('background').value,'#173B68'),accent:safeColor($('accent').value,'#287C9D'),text:safeColor($('textColor').value,'#17233B'),page_background:safeColor($('pageBackground').value,'#F2F7FB'),font:$('font').value,heading_font:$('headingFont').value,font_label:$('fontLabel').value.trim()||($('font').selectedOptions[0].text+' + '+$('headingFont').selectedOptions[0].text),layout_label:$('layoutLabel').value.trim()||$('style').selectedOptions[0].text,preview_title:'Your Experience Matters',preview_subtitle:$('description').value.trim()||'Share your genuine experience with us.',radius:$('radius').value,card_radius:$('cardRadius').value
+ style:$('style').value,background:safeColor($('background').value,'#173B68'),accent:safeColor($('accent').value,'#287C9D'),text:safeColor($('textColor').value,'#17233B'),page_background:safeColor($('pageBackground').value,'#F2F7FB'),font:$('font').value,heading_font:$('headingFont').value,font_label:$('fontLabel').value.trim()||($('font').selectedOptions[0].text+' + '+$('headingFont').selectedOptions[0].text),layout_label:$('layoutLabel').value.trim()||$('style').selectedOptions[0].text,preview_title:'Your Experience Matters',preview_subtitle:$('description').value.trim()||'Share your genuine experience with us.',radius:$('radius').value,card_radius:$('cardRadius').value,header_style:$('headerStyle').value,card_style:$('cardStyle').value,button_style:$('buttonStyle').value,field_style:$('fieldStyle').value,rating_style:$('ratingStyle').value,spacing:$('spacing').value,background_pattern:$('backgroundPattern').value,logo_shape:$('logoShape').value
 };}
 function readRecord(){const config=readConfig();return {
  design_key:$('designKey').value.trim().toLowerCase(),design_name:$('designName').value.trim(),description:$('description').value.trim(),design_config:config,design_category:$('designCategory').value,target_businesses:$('targets').value.split(',').map(x=>x.trim().toLowerCase()).filter(Boolean),display_order:Number($('order').value)||100,is_premium:$('premium').checked,is_active:$('active').checked
 };}
-function previewStyle(config,element){const style=config.style||'classic';element.dataset.style=style;element.style.background=config.page_background||'#f2f7fb';const hero=element.querySelector('.live-hero');hero.style.background=config.background||'#173b68';hero.style.color=(['minimal','cream','soft','blush','lavender','rose'].includes(style))?'#493544':'#fff';hero.style.borderRadius=config.radius||'22px';hero.style.fontFamily=fontCss[config.font]||fontCss['dm-sans'];const title=element.querySelector('.live-hero h3');title.style.fontFamily=fontCss[config.heading_font]||fontCss.playfair;title.style.color=hero.style.color;element.querySelector('.live-submit').style.background=config.accent||'#287c9d';element.querySelector('.live-submit').style.borderRadius=config.card_radius||'18px';element.querySelectorAll('.live-field,.live-suggestion').forEach(x=>{x.style.borderRadius=config.card_radius||'18px';x.style.borderColor=config.accent||'#dce4ed';});element.style.borderRadius=config.radius||'22px';element.style.padding='8px';}
+function previewStyle(config,element){const style=config.style||'classic';element.dataset.style=style;element.dataset.header=config.header_style||'centered';element.dataset.card=config.card_style||'elevated';element.dataset.button=config.button_style||'rounded';element.dataset.field=config.field_style||'outlined';element.dataset.rating=config.rating_style||'classic';element.dataset.spacing=config.spacing||'balanced';element.dataset.logo=config.logo_shape||'theme';element.dataset.pattern=config.background_pattern||'none';element.style.background=config.page_background||'#f2f7fb';const hero=element.querySelector('.live-hero');hero.style.background=config.background||'#173b68';hero.style.color=(['minimal','cream','soft','blush','lavender','rose'].includes(style))?'#493544':'#fff';hero.style.borderRadius=config.radius||'22px';hero.style.fontFamily=fontCss[config.font]||fontCss['dm-sans'];const title=element.querySelector('.live-hero h3');title.style.fontFamily=fontCss[config.heading_font]||fontCss.playfair;title.style.color=hero.style.color;element.querySelector('.live-submit').style.background=config.accent||'#287c9d';element.querySelector('.live-submit').style.borderRadius=config.card_radius||'18px';element.querySelectorAll('.live-field,.live-suggestion').forEach(x=>{x.style.borderRadius=config.card_radius||'18px';x.style.borderColor=config.accent||'#dce4ed';});element.style.borderRadius=config.radius||'22px';element.style.padding='8px';}
 function updateLivePreview(){const config=readConfig();$('pvTitle').textContent=$('designName').value.trim()||'Your Experience Matters';$('pvDescription').textContent=config.preview_subtitle;previewStyle(config,$('livePreview'));}
 function resetEditor(){editingId=null;$('designForm').reset();$('designKey').readOnly=false;$('order').value='100';$('active').checked=true;$('editorTitle').textContent='Add a New Theme';$('saveButton').textContent='Add Theme to Library';$('cancelEdit').classList.add('hidden');$('formStatus').textContent='';updateLivePreview();}
-function fillEditor(d){editingId=d.id;const c=d.design_config||{};const values={designKey:d.design_key,designName:d.design_name,designCategory:d.design_category||'general',style:c.style||'classic',pageBackground:c.page_background||'#F2F7FB',background:c.background||'#173B68',accent:c.accent||'#287C9D',textColor:c.text||'#17233B',font:c.font||'dm-sans',headingFont:c.heading_font||'playfair',layoutLabel:c.layout_label||'',fontLabel:c.font_label||'',radius:c.radius||'22px',cardRadius:c.card_radius||'18px',description:d.description||'',targets:(d.target_businesses||[]).join(', '),order:d.display_order||100,premium:!!d.is_premium,active:!!d.is_active};
+function fillEditor(d){editingId=d.id;const c=d.design_config||{};const values={designKey:d.design_key,designName:d.design_name,designCategory:d.design_category||'general',style:c.style||'classic',pageBackground:c.page_background||'#F2F7FB',background:c.background||'#173B68',accent:c.accent||'#287C9D',textColor:c.text||'#17233B',font:c.font||'dm-sans',headingFont:c.heading_font||'playfair',layoutLabel:c.layout_label||'',fontLabel:c.font_label||'',radius:c.radius||'22px',cardRadius:c.card_radius||'18px',headerStyle:c.header_style||'centered',cardStyle:c.card_style||'elevated',buttonStyle:c.button_style||'rounded',fieldStyle:c.field_style||'outlined',ratingStyle:c.rating_style||'classic',spacing:c.spacing||'balanced',backgroundPattern:c.background_pattern||'none',logoShape:c.logo_shape||'theme',description:d.description||'',targets:(d.target_businesses||[]).join(', '),order:d.display_order||100,premium:!!d.is_premium,active:!!d.is_active};
  for(const [k,v] of Object.entries(values)){if($(k).type==='checkbox')$(k).checked=v;else $(k).value=v;}
  $('designKey').readOnly=true;$('editorTitle').textContent='Edit Theme · '+d.design_name;$('saveButton').textContent='Save Theme Changes';$('cancelEdit').classList.remove('hidden');$('formStatus').textContent='Editing existing theme. Save to apply changes.';updateLivePreview();$('editorPanel').scrollIntoView({behavior:'smooth',block:'start'});
 }
