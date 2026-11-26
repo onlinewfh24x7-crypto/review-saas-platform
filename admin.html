@@ -1,929 +1,327 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Growvia | Admin Design Library</title>
-
+<title>Growvia | Admin Control Center</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root {
-  font-family: Inter, Arial, sans-serif;
-  color: #17233b;
-  background: #f4f7fb;
-}
-
-* { box-sizing: border-box; }
-
-body { margin: 0; }
-
-.wrap {
-  max-width: 1180px;
-  margin: auto;
-  padding: 28px 18px 60px;
-}
-
-.top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 14px;
-  margin-bottom: 24px;
-}
-
-.brand {
-  font-weight: 800;
-  letter-spacing: 2px;
-  color: #173b68;
-  font-size: 22px;
-}
-
-.brand small {
-  display: block;
-  font-size: 10px;
-  letter-spacing: 2px;
-  color: #74839a;
-  margin-top: 5px;
-}
-
-.panel {
-  background: white;
-  border: 1px solid #e2e9f1;
-  border-radius: 16px;
-  padding: 22px;
-  margin: 16px 0;
-  box-shadow: 0 12px 35px #1c36500b;
-}
-
-h1 { font-size: 27px; margin: 0 0 8px; }
-h2 { font-size: 18px; margin: 0 0 8px; }
-
-.muted {
-  color: #718096;
-  font-size: 13px;
-  line-height: 1.7;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-}
-
-.field label {
-  display: block;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 1px;
-  margin: 0 0 7px;
-  color: #52647a;
-}
-
-.field input:not([type="checkbox"]),
-.field select,
-.field textarea {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #dce4ed;
-  border-radius: 9px;
-  background: #fbfcfe;
-  font: inherit;
-  font-size: 13px;
-}
-
-.field input[type="color"] {
-  height: 43px;
-  padding: 4px;
-  cursor: pointer;
-}
-
-.field textarea {
-  min-height: 90px;
-  resize: vertical;
-}
-
-.wide { grid-column: 1 / -1; }
-
-.btn {
-  border: 0;
-  border-radius: 9px;
-  padding: 11px 15px;
-  background: #173b68;
-  color: white;
-  font-weight: 700;
-  cursor: pointer;
-  font-size: 12px;
-  text-decoration: none;
-  display: inline-block;
-}
-
-.btn.secondary {
-  background: #edf2f7;
-  color: #26384f;
-}
-
-.btn.warn {
-  background: #fff0df;
-  color: #965516;
-}
-
-.btn:disabled {
-  opacity: .5;
-  cursor: not-allowed;
-}
-
-.status {
-  font-size: 13px;
-  margin-top: 12px;
-  line-height: 1.6;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(245px, 1fr));
-  gap: 14px;
-}
-
-.design {
-  border: 1px solid #e2e8f0;
-  border-radius: 13px;
-  background: white;
-  overflow: hidden;
-}
-
-.preview {
-  min-height: 150px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 9px;
-  border-top: 5px solid #1257b8;
-}
-
-.preview b { font-size: 21px; }
-
-.preview .eyebrow {
-  font-size: 9px;
-  letter-spacing: 2px;
-  font-weight: 800;
-}
-
-.preview .subtitle {
-  font-size: 11px;
-  line-height: 1.6;
-}
-
-.meta { padding: 14px; }
-
-.meta strong {
-  display: block;
-  font-size: 14px;
-}
-
-.meta p {
-  font-size: 11px;
-  color: #728095;
-  line-height: 1.6;
-  min-height: 35px;
-}
-
-.actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.pill {
-  display: inline-block;
-  background: #edf2f7;
-  color: #52647a;
-  border-radius: 20px;
-  padding: 5px 8px;
-  font-size: 9px;
-  font-weight: 800;
-  margin-top: 8px;
-}
-
-@media(max-width:650px) {
-  .grid { grid-template-columns: 1fr; }
-  .wide { grid-column: auto; }
-  .wrap { padding: 18px 12px; }
-  .panel { padding: 16px; }
-}
+:root{--navy:#071B49;--blue:#1257B8;--gold:#F5A623;--orange:#F47721;--bg:#F4F6FB;--white:#fff;--text:#17233B;--muted:#758198;--border:#E5EAF2;--green:#12845F;--red:#C83D4B;--amber:#A66A00}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}
+.layout{min-height:100vh}.sidebar{position:fixed;inset:0 auto 0 0;width:250px;background:var(--navy);color:#fff;padding:26px 16px;display:flex;flex-direction:column;z-index:5}.brand{font:800 26px Poppins,sans-serif;letter-spacing:-1px;padding:0 12px 30px}.brand span{color:var(--gold)}.brand small{display:block;font:10px Inter,sans-serif;color:#AAB9D6;letter-spacing:2px;margin-top:3px}.nav-label{padding:13px 12px 7px;color:#8295B9;font-size:10px;font-weight:800;letter-spacing:1.5px}.nav{display:grid;gap:5px}.nav button{border:0;text-align:left;background:transparent;color:#C9D4E8;border-radius:9px;padding:12px;font-size:12px;font-weight:650}.nav button.active,.nav button:hover{background:#174B98;color:#fff}.sidebar-bottom{margin-top:auto}.admin-chip{margin:12px 3px;padding:12px;background:#FFFFFF12;border:1px solid #FFFFFF20;border-radius:10px;font-size:11px;color:#D5DFF0;overflow-wrap:anywhere}.logout{width:100%;padding:11px;border-radius:8px;border:1px solid #FFFFFF35;background:transparent;color:#fff;font-size:12px}
+.main{margin-left:250px;min-height:100vh}.topbar{height:72px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 34px}.crumb{font-size:12px;color:var(--muted)}.crumb strong{color:var(--navy)}.topright{font-size:11px;color:var(--muted)}.content{max-width:1400px;margin:auto;padding:30px 34px 55px}.page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:22px}.page-head h1{font:700 25px Poppins,sans-serif;color:var(--navy);margin:0 0 6px}.page-head p{font-size:12px;color:var(--muted);margin:0;line-height:1.6}.refresh{border:1px solid var(--border);background:#fff;color:var(--navy);padding:10px 14px;border-radius:8px;font-size:11px;font-weight:700}
+.notice{padding:12px 14px;border-radius:9px;background:#FFF8E8;border:1px solid #F4E3B8;color:#805A0A;font-size:11px;line-height:1.6;margin-bottom:18px}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:20px}.stat{background:#fff;border:1px solid var(--border);border-radius:12px;padding:17px}.stat small{font-size:9px;color:var(--muted);font-weight:800;letter-spacing:1px}.stat strong{display:block;font:700 25px Poppins,sans-serif;color:var(--navy);margin-top:9px}.stat span{font-size:10px;color:var(--muted)}
+.panel{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.panel h2{font:600 14px Poppins,sans-serif;color:var(--navy);margin:0}.muted{font-size:11px;color:var(--muted);line-height:1.6}.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px}.toolbar input,.toolbar select{width:auto;min-width:170px;height:38px;font-size:11px}.btn{border:0;border-radius:7px;padding:9px 12px;font-size:10px;font-weight:800}.btn-primary{background:var(--blue);color:#fff}.btn-green{background:#E5F7EF;color:var(--green)}.btn-red{background:#FDEBED;color:var(--red)}.btn-gold{background:#FFF3D9;color:#986000}.btn-light{background:#EDF2FA;color:#34425B}.btn-outline{background:#fff;border:1px solid var(--border);color:#34425B}
+.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:720px}th{text-align:left;padding:11px 10px;background:#F7F9FC;color:#748098;font-size:9px;letter-spacing:.7px}td{padding:12px 10px;border-bottom:1px solid #EDF0F5;font-size:11px;vertical-align:top}td strong{color:var(--navy)}.subline{display:block;color:var(--muted);font-size:10px;margin-top:4px;line-height:1.5}.badge{display:inline-block;padding:5px 8px;border-radius:20px;font-size:9px;font-weight:800;text-transform:uppercase;background:#EEF2F8;color:#59677D}.badge.pending,.badge.draft{background:#FFF3D9;color:var(--amber)}.badge.approved,.badge.active{background:#E5F7EF;color:var(--green)}.badge.rejected,.badge.archived{background:#FDEBED;color:var(--red)}
+.actions{display:flex;gap:6px;flex-wrap:wrap}.empty{padding:25px;text-align:center;color:var(--muted);background:#F8FAFD;border-radius:9px;font-size:11px}.status{font-size:11px;line-height:1.6;margin-top:10px;min-height:16px}.success{color:var(--green)}.error{color:var(--red)}.loading{color:var(--blue)}
+.tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}.tab{border:1px solid var(--border);background:#fff;color:#4B5870;border-radius:20px;padding:8px 13px;font-size:10px;font-weight:700}.tab.active{background:var(--navy);border-color:var(--navy);color:#fff}
+.modal-backdrop{position:fixed;inset:0;background:#071B4970;display:none;align-items:center;justify-content:center;padding:18px;z-index:20}.modal-backdrop.open{display:flex}.modal{width:min(720px,100%);max-height:88vh;overflow:auto;background:#fff;border-radius:14px;padding:22px;box-shadow:0 20px 60px #071B4933}.modal h2{font:600 17px Poppins,sans-serif;color:var(--navy);margin:0 0 14px}.modal-close{float:right;border:0;background:#EEF2F8;border-radius:7px;padding:7px 10px}.field{margin:12px 0}.field label{display:block;font-size:10px;font-weight:800;color:#45536B;margin-bottom:6px}.field input,.field select,.field textarea{width:100%;border:1px solid #DCE3EF;border-radius:8px;padding:10px;font-size:11px;background:#FCFDFF}.field textarea{min-height:75px;resize:vertical}.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.detail{padding:11px;background:#F7F9FC;border-radius:8px;font-size:11px;line-height:1.6;overflow-wrap:anywhere}.detail b{display:block;color:#68758C;font-size:9px;text-transform:uppercase;margin-bottom:4px}.suggestion{padding:12px;border:1px solid var(--border);border-radius:9px;margin:8px 0;font-size:11px;line-height:1.7}.suggestion small{display:block;color:var(--muted);font-size:9px;margin-bottom:5px}.footer{text-align:center;color:#A0AABC;font-size:10px;padding:25px 0}
+@media(max-width:950px){.sidebar{width:215px}.main{margin-left:215px}.content{padding:25px 20px}.topbar{padding:0 20px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){.sidebar{position:static;width:100%;height:auto;padding:12px 14px;display:block}.brand{padding:0;font-size:22px}.brand small{display:none}.nav-label{display:none}.nav{display:flex;overflow:auto;margin-top:10px}.nav button{white-space:nowrap;padding:9px 11px}.sidebar-bottom{position:absolute;right:12px;top:12px;margin:0}.admin-chip{display:none}.logout{padding:8px 10px;width:auto}.main{margin:0}.topbar{height:50px;padding:0 15px}.content{padding:20px 14px}.page-head{align-items:flex-start}.page-head h1{font-size:21px}.stats{grid-template-columns:1fr 1fr;gap:8px}.stat{padding:13px}.stat strong{font-size:21px}.detail-grid{grid-template-columns:1fr}.panel{padding:13px}.toolbar input,.toolbar select{flex:1;min-width:130px}}
 </style>
 </head>
-
 <body>
-
-<main class="wrap">
-
-<header class="top">
-  <div class="brand">
-    GROWVIA
-    <small>ADMIN · DESIGN LIBRARY</small>
+<div class="layout">
+<aside class="sidebar">
+  <div class="brand">GRO<span>VIA</span><small>ADMIN CONTROL CENTER</small></div>
+  <div class="nav-label">MANAGEMENT</div>
+  <nav class="nav">
+    <button class="active" data-view="overview">▦ &nbsp; Overview</button>
+    <button data-view="business-requests">▣ &nbsp; Business Requests</button>
+    <button data-view="category-requests">◇ &nbsp; Category Requests</button>
+    <button data-view="suggestions">✧ &nbsp; Review Suggestions</button>
+    <button data-view="businesses">▤ &nbsp; Businesses</button>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="admin-chip" id="adminIdentity">Checking admin access…</div>
+    <button class="logout" id="logoutBtn">↪ &nbsp; Sign Out</button>
   </div>
-
-  <a class="btn secondary" href="dashboard.html">
-    Business Dashboard ↗
-  </a>
-</header>
-
-<section class="panel">
-  <h1>Review Page Theme Manager</h1>
-
-  <p class="muted">
-    Manage Growvia review page designs. Add new themes,
-    control availability and manage premium designs.
-  </p>
-
-  <div id="authStatus" class="status">
-    Checking login...
-  </div>
-</section>
-
-<section class="panel">
-
-  <h2>Add a New Complete Theme</h2>
-
-  <p class="muted">
-    Create a new theme using an existing supported design style.
-    New layout families may require additional CSS support in review.html.
-  </p>
-
-  <form id="designForm" class="grid">
-
-    <div class="field">
-      <label>DESIGN KEY (UNIQUE)</label>
-      <input
-        id="designKey"
-        required
-        pattern="[a-z0-9-]+"
-        maxlength="80"
-        placeholder="e.g. dental-clean-pro">
+</aside>
+<div class="main">
+<header class="topbar"><div class="crumb">Growvia &nbsp; / &nbsp; <strong id="crumbTitle">Overview</strong></div><div class="topright" id="topUser">Secure Admin Session</div></header>
+<main class="content">
+  <div class="page-head"><div><h1 id="pageTitle">Admin Overview</h1><p id="pageDescription">Manage business onboarding, category requests and customer review content.</p></div><button class="refresh" id="refreshBtn">↻ Refresh Data</button></div>
+  <div class="notice">Admin access is verified through the Supabase <b>is_growvia_admin()</b> function and database Row Level Security. Never remove or weaken the existing RLS policies to make this page work.</div>
+  <section id="view-overview">
+    <div class="stats">
+      <div class="stat"><small>BUSINESSES</small><strong id="statBusinesses">—</strong><span>Approved business profiles</span></div>
+      <div class="stat"><small>BUSINESS REQUESTS</small><strong id="statRequests">—</strong><span>Awaiting review</span></div>
+      <div class="stat"><small>CATEGORY REQUESTS</small><strong id="statCategories">—</strong><span>Awaiting classification</span></div>
+      <div class="stat"><small>DRAFT SUGGESTIONS</small><strong id="statSuggestions">—</strong><span>Awaiting activation</span></div>
     </div>
-
-    <div class="field">
-      <label>DESIGN NAME</label>
-      <input
-        id="designName"
-        required
-        maxlength="80"
-        placeholder="Dental Clean Pro">
+    <div class="panel"><div class="panel-head"><h2>Pending Work</h2><span class="muted">Items requiring Admin attention</span></div><div id="overviewPending" class="empty">Loading admin data…</div></div>
+    <div class="panel"><div class="panel-head"><h2>System Notes</h2></div><div class="muted">• Approving a business request runs the existing approve_business_request() database function.<br>• Newly created review suggestions remain in Draft until Admin activates them.<br>• Activating suggestions makes them eligible for owner/public review-page retrieval according to existing RLS and RPC rules.<br>• Theme Manager remains a separate page and is not modified here.</div></div>
+  </section>
+  <section id="view-business-requests" hidden>
+    <div class="panel"><div class="panel-head"><h2>Business Profile Requests</h2><span class="muted">Review before creating an approved business</span></div>
+      <div class="toolbar"><input id="requestSearch" placeholder="Search business / phone"><select id="requestFilter"><option value="pending">Pending requests</option><option value="all">All requests</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select></div>
+      <div id="businessRequestsTable" class="empty">Loading requests…</div><div id="requestStatus" class="status" role="status"></div>
     </div>
-
-    <div class="field">
-      <label>CATEGORY</label>
-      <select id="designCategory">
-        <option value="general">General</option>
-        <option value="ladies">Ladies Special</option>
-      </select>
+  </section>
+  <section id="view-category-requests" hidden>
+    <div class="panel"><div class="panel-head"><h2>New Business Category / Type Requests</h2><span class="muted">Classify new or unmatched business types</span></div>
+      <div class="toolbar"><input id="categorySearch" placeholder="Search proposed category or type"><select id="categoryFilter"><option value="pending">Pending requests</option><option value="all">All requests</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="merged">Merged</option></select></div>
+      <div id="categoryRequestsTable" class="empty">Loading category requests…</div><div id="categoryStatus" class="status" role="status"></div>
     </div>
-
-    <div class="field">
-      <label>SUPPORTED BASE STYLE</label>
-      <select id="style">
-        <option value="classic">Classic</option>
-        <option value="dark">Luxury Dark</option>
-        <option value="gradient">Modern Gradient</option>
-        <option value="soft">Elegant Soft</option>
-        <option value="corporate">Corporate</option>
-        <option value="fresh">Fresh Green</option>
-        <option value="glass">Modern Glass</option>
-        <option value="minimal">Minimal</option>
-        <option value="royal">Royal Purple</option>
-        <option value="ocean">Ocean Blue</option>
-        <option value="sunset">Sunset</option>
-        <option value="earthy">Earthy</option>
-        <option value="teal">Teal Fresh</option>
-        <option value="charcoal">Charcoal</option>
-        <option value="sky">Sky Blue</option>
-        <option value="cream">Classic Cream</option>
-        <option value="blush">Blush Gold</option>
-        <option value="burgundy">Burgundy Luxe</option>
-        <option value="lavender">Lavender Elegance</option>
-        <option value="rose">Rose Chic</option>
-      </select>
+  </section>
+  <section id="view-suggestions" hidden>
+    <div class="panel"><div class="panel-head"><h2>Review Suggestion Library</h2><span class="muted">Approve only genuine, suitable customer-experience statements</span></div>
+      <div class="toolbar"><select id="suggestionBusiness"><option value="">All businesses</option></select><select id="suggestionLanguage"><option value="all">All languages</option><option value="Hindi">Hindi</option><option value="English">English</option><option value="Hinglish">Hinglish</option></select><select id="suggestionStatus"><option value="draft">Draft (needs activation)</option><option value="all">All statuses</option><option value="active">Active</option><option value="archived">Archived</option></select><input id="suggestionSearch" placeholder="Search suggestion text"></div>
+      <div class="toolbar"><button class="btn btn-green" id="activateFilteredBtn">✓ Activate Filtered Drafts</button><button class="btn btn-red" id="archiveFilteredBtn">Archive Filtered Drafts</button></div>
+      <div id="suggestionsTable" class="empty">Loading suggestions…</div><div id="suggestionStatusMsg" class="status" role="status"></div>
     </div>
-
-    <div class="field">
-      <label>BACKGROUND COLOR</label>
-      <input id="background" type="color" value="#ffffff">
+    <div class="panel"><h2>Pending Request Suggestions</h2><p class="muted">These are generated for requests before a business is approved. They are not public until the business approval workflow copies them into the business suggestion library.</p><div id="pendingSuggestionsTable" class="empty">Loading pending request suggestions…</div></div>
+  </section>
+  <section id="view-businesses" hidden>
+    <div class="panel"><div class="panel-head"><h2>Approved Businesses</h2><span class="muted">Current records in public.businesses</span></div>
+      <div class="toolbar"><input id="businessSearch" placeholder="Search business name / category"></div>
+      <div id="businessesTable" class="empty">Loading businesses…</div>
     </div>
-
-    <div class="field">
-      <label>ACCENT COLOR</label>
-      <input id="accent" type="color" value="#1257b8">
-    </div>
-
-    <div class="field">
-      <label>TEXT COLOR</label>
-      <input id="textColor" type="color" value="#17233b">
-    </div>
-
-    <div class="field">
-      <label>PAGE BACKGROUND</label>
-      <input id="pageBackground" type="color" value="#f4f8ff">
-    </div>
-
-    <div class="field">
-      <label>FONT STYLE</label>
-      <select id="font">
-        <option value="sans">Modern Sans</option>
-        <option value="serif">Classic Serif</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label>HEADING FONT</label>
-      <select id="headingFont">
-        <option value="sans">Modern Sans</option>
-        <option value="serif">Elegant Serif</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label>LAYOUT LABEL</label>
-      <input id="layoutLabel" maxlength="60"
-        placeholder="e.g. Dental Professional">
-    </div>
-
-    <div class="field">
-      <label>FONT LABEL</label>
-      <input id="fontLabel" maxlength="60"
-        placeholder="e.g. Clean Sans Typography">
-    </div>
-
-    <div class="field wide">
-      <label>DESCRIPTION</label>
-      <textarea id="description" maxlength="250"
-        placeholder="Describe this theme and its suitable business types"></textarea>
-    </div>
-
-    <div class="field">
-      <label>TARGET BUSINESSES (COMMA SEPARATED)</label>
-      <input id="targets"
-        placeholder="clinic, dental, healthcare">
-    </div>
-
-    <div class="field">
-      <label>DISPLAY ORDER</label>
-      <input id="order" type="number" value="100" min="1">
-    </div>
-
-    <div class="field">
-      <label>
-        <input id="premium" type="checkbox">
-        Premium Theme
-      </label>
-    </div>
-
-    <div class="field">
-      <label>
-        <input id="active" type="checkbox" checked>
-        Active Immediately
-      </label>
-    </div>
-
-    <div class="field wide">
-      <button class="btn" id="addButton" type="submit">
-        Add Theme to Library
-      </button>
-
-      <div id="formStatus" class="status"></div>
-    </div>
-
-  </form>
-</section>
-
-<section class="panel">
-
-  <div class="top">
-    <div>
-      <h2>Existing Themes</h2>
-      <p class="muted">
-        Activate, deactivate or change premium status.
-      </p>
-    </div>
-
-    <button class="btn secondary" id="refreshButton" type="button">
-      Refresh Library
-    </button>
-  </div>
-
-  <div id="designCards" class="cards">
-    Loading themes...
-  </div>
-
-  <div id="libraryStatus" class="status"></div>
-
-</section>
-
+  </section>
+  <div class="footer">© 2026 Growvia · Admin Control Center</div>
 </main>
+</div></div>
+
+<div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true"><div class="modal"><button class="modal-close" id="modalClose">✕</button><div id="modalContent"></div></div></div>
 
 <script>
 'use strict';
-
-/* SUPABASE CONNECTION */
-
-const SUPABASE_URL =
-  'https://zfnvxfztxhzxwwvkapys.supabase.co';
-
-const SUPABASE_KEY =
-  'sb_publishable_X_Li2kPRPtqU7MeLqOSUpg_iCGLLpi1';
-
-const db = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
-
+const SUPABASE_URL = "https://zfnvxfztxhzxwwvkapys.supabase.co";
+const SUPABASE_KEY = "sb_publishable_X_Li2kPRPtqU7MeLqOSUpg_iCGLLpi1";
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const $ = id => document.getElementById(id);
+let currentUser = null;
+let businessRequests = [];
+let categoryRequests = [];
+let businesses = [];
+let suggestions = [];
+let pendingSuggestions = [];
+let activeView = "overview";
 
-let adminReady = false;
-let busy = false;
+const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const dateText = value => value ? new Date(value).toLocaleString("en-IN",{dateStyle:"medium",timeStyle:"short"}) : "—";
+const statusBadge = value => `<span class="badge ${esc(String(value||"").toLowerCase())}">${esc(value||"unknown")}</span>`;
+function setStatus(id, message, type="") { const el=$(id); if(el){el.textContent=message;el.className="status "+type;} }
+function showModal(html){$("modalContent").innerHTML=html;$("modalBackdrop").classList.add("open");}
+function closeModal(){$("modalBackdrop").classList.remove("open");$("modalContent").replaceChildren();}
+function setView(view){
+  activeView=view;
+  document.querySelectorAll("[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
+  ["overview","business-requests","category-requests","suggestions","businesses"].forEach(v=>{$("view-"+v).hidden=v!==view;});
+  const labels={"overview":["Overview","Admin Overview","Manage business onboarding, category requests and customer review content."],"business-requests":["Business Requests","Business Profile Requests","Review and approve new business registrations."],"category-requests":["Category Requests","Business Category Requests","Approve new business types or map them to an existing type."],"suggestions":["Review Suggestions","Review Suggestion Library","Review, activate and archive business-specific customer review suggestions."],"businesses":["Businesses","Approved Businesses","View approved business accounts and their current setup."]};
+  const x=labels[view];$("crumbTitle").textContent=x[0];$("pageTitle").textContent=x[1];$("pageDescription").textContent=x[2];
+}
+document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.view)));
+$("modalClose").addEventListener("click",closeModal);
+$("modalBackdrop").addEventListener("click",e=>{if(e.target===$("modalBackdrop"))closeModal();});
+function tableShell(headers,rows){return `<div class="table-wrap"><table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${rows||""}</tbody></table></div>`;}
+function noRows(message){return `<div class="empty">${esc(message)}</div>`;}
 
-
-/* MESSAGE HELPER */
-
-function showMessage(id, message) {
-  $(id).textContent = message;
+async function verifyAdmin(){
+  const {data,error}=await db.auth.getUser();
+  if(error||!data.user){window.location.replace("index.html");return false;}
+  currentUser=data.user;
+  $("topUser").textContent=currentUser.email||"Admin session";
+  $("adminIdentity").textContent="Signed in: "+(currentUser.email||currentUser.id);
+  // The database function is the authority; UI checks are not a substitute for RLS.
+  const check=await db.rpc("is_growvia_admin");
+  if(check.error){$("adminIdentity").textContent="Admin verification failed";alert("Admin access could not be verified: "+check.error.message);await db.auth.signOut();window.location.replace("index.html");return false;}
+  const allowed=check.data===true || (Array.isArray(check.data)&&check.data[0]===true);
+  if(!allowed){alert("This account is not registered as a Growvia Admin.");await db.auth.signOut();window.location.replace("index.html");return false;}
+  return true;
 }
 
-
-/* SAFE PREVIEW */
-
-function makePreview(design) {
-
-  const config = design.design_config || {};
-
-  const preview = document.createElement('div');
-  preview.className = 'preview';
-
-  preview.style.background =
-    config.page_background ||
-    config.background ||
-    '#ffffff';
-
-  preview.style.color =
-    config.text || '#17233b';
-
-  preview.style.borderTopColor =
-    config.accent || '#1257b8';
-
-  const eyebrow = document.createElement('small');
-  eyebrow.className = 'eyebrow';
-  eyebrow.textContent =
-    config.layout_label || 'BUSINESS THEME';
-
-  eyebrow.style.color =
-    config.accent || '#1257b8';
-
-  const title = document.createElement('b');
-  title.textContent =
-    config.preview_title || 'Your Experience Matters';
-
-  const subtitle = document.createElement('span');
-  subtitle.className = 'subtitle';
-  subtitle.textContent =
-    config.preview_subtitle ||
-    design.description ||
-    'Share your genuine experience with us.';
-
-  preview.append(eyebrow, title, subtitle);
-
-  return preview;
+async function loadAll(){
+  $("refreshBtn").disabled=true;$("refreshBtn").textContent="Loading…";
+  try{
+    const results=await Promise.all([
+      db.from("business_profile_requests").select("id,owner_user_id,business_name,category,phone,email,address,city,logo_url,description,services_products,business_speciality,additional_info,status,admin_note,reviewed_by,reviewed_at,created_at,business_type_id,google_business_url").order("created_at",{ascending:false}),
+      db.from("business_category_requests").select("id,requested_by,proposed_name,normalized_name,suggested_business_type_id,final_business_type_id,status,admin_note,reviewed_by,reviewed_at,created_at").order("created_at",{ascending:false}),
+      db.from("businesses").select("id,owner_user_id,business_name,category,phone,email,address,city,services_products,business_speciality,additional_info,business_type_id,google_business_url,created_at").order("created_at",{ascending:false}),
+      db.from("business_review_suggestions").select("id,business_id,suggestion_text,language,status,created_by,approved_by,approved_at,created_at,updated_at").order("created_at",{ascending:false}),
+      db.from("pending_business_review_suggestions").select("id,request_id,suggestion_text,language,status,created_at").order("created_at",{ascending:false})
+    ]);
+    const names=["Business requests","Category requests","Businesses","Review suggestions","Pending request suggestions"];
+    results.forEach((r,i)=>{if(r.error)console.warn(names[i]+":",r.error.message);});
+    businessRequests=results[0].data||[];categoryRequests=results[1].data||[];businesses=results[2].data||[];suggestions=results[3].data||[];pendingSuggestions=results[4].data||[];
+    renderAll();
+  }catch(e){console.error(e);alert("Data load failed: "+(e.message||e));}
+  finally{$("refreshBtn").disabled=false;$("refreshBtn").textContent="↻ Refresh Data";}
+}
+function renderAll(){renderOverview();renderBusinessRequests();renderCategoryRequests();renderSuggestions();renderPendingSuggestions();renderBusinesses();populateBusinessFilter();}
+function renderOverview(){
+  const pendingR=businessRequests.filter(x=>x.status==="pending").length;
+  const pendingC=categoryRequests.filter(x=>x.status==="pending").length;
+  const drafts=suggestions.filter(x=>x.status==="draft").length;
+  $("statBusinesses").textContent=businesses.length;$("statRequests").textContent=pendingR;$("statCategories").textContent=pendingC;$("statSuggestions").textContent=drafts;
+  const tasks=[];
+  if(pendingR)tasks.push(`<button class="btn btn-gold" data-goto="business-requests">${pendingR} business request(s) need review →</button>`);
+  if(pendingC)tasks.push(`<button class="btn btn-gold" data-goto="category-requests">${pendingC} category request(s) need review →</button>`);
+  if(drafts)tasks.push(`<button class="btn btn-gold" data-goto="suggestions">${drafts} suggestion(s) need activation →</button>`);
+  $("overviewPending").innerHTML=tasks.length?`<div class="actions">${tasks.join("")}</div>`:noRows("No pending Admin tasks right now.");
+  document.querySelectorAll("[data-goto]").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.goto)));
+}
+function renderBusinessRequests(){
+  const q=$("requestSearch").value.trim().toLowerCase(),filter=$("requestFilter").value;
+  const rows=businessRequests.filter(r=>(filter==="all"||r.status===filter)&&(!q||[r.business_name,r.phone,r.email,r.category].some(v=>String(v||"").toLowerCase().includes(q))));
+  if(!rows.length){$("businessRequestsTable").innerHTML=noRows("No matching business requests.");return;}
+  $("businessRequestsTable").innerHTML=tableShell(["BUSINESS / OWNER","CATEGORY & CONTACT","SUBMITTED","STATUS","ACTIONS"],rows.map(r=>`<tr>
+    <td><strong>${esc(r.business_name)}</strong><span class="subline">${esc(r.owner_user_id)}</span></td>
+    <td>${esc(r.category||"—")}<span class="subline">${esc(r.phone||"")} · ${esc(r.email||"")}</span></td>
+    <td>${dateText(r.created_at)}</td><td>${statusBadge(r.status)}</td>
+    <td><div class="actions"><button class="btn btn-light" data-request-view="${esc(r.id)}">Details</button>${r.status==="pending"?`<button class="btn btn-green" data-request-approve="${esc(r.id)}">Approve</button><button class="btn btn-red" data-request-reject="${esc(r.id)}">Reject</button>`:""}</div></td>
+  </tr>`).join(""));
+  document.querySelectorAll("[data-request-view]").forEach(b=>b.addEventListener("click",()=>viewBusinessRequest(b.dataset.requestView)));
+  document.querySelectorAll("[data-request-approve]").forEach(b=>b.addEventListener("click",()=>approveBusinessRequest(b.dataset.requestApprove)));
+  document.querySelectorAll("[data-request-reject]").forEach(b=>b.addEventListener("click",()=>rejectBusinessRequest(b.dataset.requestReject)));
+}
+function viewBusinessRequest(id){
+ const r=businessRequests.find(x=>x.id===id);if(!r)return;
+ showModal(`<h2>Business Request Details</h2><div class="detail-grid">
+ ${detail("Business name",r.business_name)}${detail("Category",r.category)}${detail("Phone",r.phone)}${detail("Email",r.email)}
+ ${detail("Address",r.address)}${detail("City",r.city)}${detail("Google Business Profile",r.google_business_url)}
+ ${detail("Business type ID",r.business_type_id)}${detail("Submitted",dateText(r.created_at))}
+ ${detail("Services / Products",r.services_products)}${detail("Speciality",r.business_speciality)}
+ ${detail("Description",r.description)}${detail("Additional information",r.additional_info)}
+ ${detail("Current status",r.status)}${detail("Admin note",r.admin_note)}
+ </div>${r.status==="pending"?`<div class="actions" style="margin-top:16px"><button class="btn btn-green" data-modal-approve="${esc(r.id)}">Approve Request</button><button class="btn btn-red" data-modal-reject="${esc(r.id)}">Reject Request</button></div>`:""}`);
+ const a=document.querySelector("[data-modal-approve]");if(a)a.addEventListener("click",()=>approveBusinessRequest(a.dataset.modalApprove));
+ const b=document.querySelector("[data-modal-reject]");if(b)b.addEventListener("click",()=>rejectBusinessRequest(b.dataset.modalReject));
+}
+function detail(label,value){return `<div class="detail"><b>${esc(label)}</b>${esc(value||"—")}</div>`;}
+async function approveBusinessRequest(id){
+ const r=businessRequests.find(x=>x.id===id);if(!r||r.status!=="pending")return;
+ if(!confirm(`Approve "${r.business_name}"?\n\nThe existing database function will create the business and copy its generated suggestions as Draft.`))return;
+ setStatus("requestStatus","Approving business request…","loading");
+ const {data,error}=await db.rpc("approve_business_request",{p_request_id:id});
+ if(error){setStatus("requestStatus","Approval failed: "+error.message,"error");return;}
+ if(data&&data.success===false){setStatus("requestStatus",data.message||"Approval was not completed.","error");return;}
+ setStatus("requestStatus","Business request approved. Check Review Suggestions and activate suitable Draft suggestions.","success");closeModal();await loadAll();
+}
+async function rejectBusinessRequest(id){
+ const r=businessRequests.find(x=>x.id===id);if(!r||r.status!=="pending")return;
+ const note=prompt("Rejection reason / Admin note (optional):","");if(note===null)return;
+ setStatus("requestStatus","Rejecting request…","loading");
+ const {data,error}=await db.rpc("reject_business_request",{p_request_id:id,p_admin_note:note.trim()||"Request rejected by Admin."});
+ if(error){setStatus("requestStatus","Rejection failed: "+error.message,"error");return;}
+ if(data&&data.success===false){setStatus("requestStatus",data.message||"Rejection was not completed.","error");return;}
+ setStatus("requestStatus","Business request rejected.","success");closeModal();await loadAll();
 }
 
-
-/* AUTHENTICATION AND ADMIN ACCESS */
-
-async function checkAdmin() {
-
-  showMessage('authStatus', 'Checking Growvia login...');
-
-  try {
-
-    const { data, error } = await db.auth.getUser();
-
-    if (error || !data || !data.user) {
-
-      adminReady = false;
-
-      showMessage(
-        'authStatus',
-        'You are not logged in. Please sign in through Growvia Dashboard first.'
-      );
-
-      $('designCards').textContent =
-        'Please sign in to view the Design Library.';
-
-      return;
-    }
-
-    showMessage(
-      'authStatus',
-      'Signed in as: ' + data.user.email +
-      '\nChecking database permissions...'
-    );
-
-    await loadDesigns();
-
-  } catch (error) {
-
-    adminReady = false;
-
-    showMessage(
-      'authStatus',
-      'Authentication error: ' + error.message
-    );
+async function loadActiveCategories(){
+ const {data,error}=await db.from("business_categories").select("id,name").eq("is_active",true).order("sort_order",{ascending:true});
+ if(error)return [];
+ return data||[];
+}
+function renderCategoryRequests(){
+ const q=$("categorySearch").value.trim().toLowerCase(),filter=$("categoryFilter").value;
+ const rows=categoryRequests.filter(r=>(filter==="all"||r.status===filter)&&(!q||[r.proposed_name,r.normalized_name,r.admin_note].some(v=>String(v||"").toLowerCase().includes(q))));
+ if(!rows.length){$("categoryRequestsTable").innerHTML=noRows("No matching category/type requests.");return;}
+ $("categoryRequestsTable").innerHTML=tableShell(["PROPOSED TYPE","REQUESTER","SUBMITTED","STATUS","ACTIONS"],rows.map(r=>`<tr>
+ <td><strong>${esc(r.proposed_name)}</strong><span class="subline">Normalized: ${esc(r.normalized_name||"—")}</span></td><td>${esc(r.requested_by)}</td><td>${dateText(r.created_at)}</td><td>${statusBadge(r.status)}</td>
+ <td><div class="actions"><button class="btn btn-light" data-category-view="${esc(r.id)}">Details</button>${r.status==="pending"?`<button class="btn btn-green" data-category-approve="${esc(r.id)}">Approve / Map</button><button class="btn btn-red" data-category-reject="${esc(r.id)}">Reject</button>`:""}</div></td></tr>`).join(""));
+ document.querySelectorAll("[data-category-view]").forEach(b=>b.addEventListener("click",()=>viewCategoryRequest(b.dataset.categoryView)));
+ document.querySelectorAll("[data-category-approve]").forEach(b=>b.addEventListener("click",()=>approveCategoryRequest(b.dataset.categoryApprove)));
+ document.querySelectorAll("[data-category-reject]").forEach(b=>b.addEventListener("click",()=>rejectCategoryRequest(b.dataset.categoryReject)));
+}
+function viewCategoryRequest(id){const r=categoryRequests.find(x=>x.id===id);if(!r)return;showModal(`<h2>Category Request</h2><div class="detail-grid">${detail("Proposed name",r.proposed_name)}${detail("Normalized name",r.normalized_name)}${detail("Requester",r.requested_by)}${detail("Suggested business type ID",r.suggested_business_type_id)}${detail("Final business type ID",r.final_business_type_id)}${detail("Status",r.status)}${detail("Admin note",r.admin_note)}${detail("Submitted",dateText(r.created_at))}</div>`);}
+async function approveCategoryRequest(id){
+ const r=categoryRequests.find(x=>x.id===id);if(!r||r.status!=="pending")return;
+ const cats=await loadActiveCategories();
+ if(!cats.length){setStatus("categoryStatus","No active business categories found. Add/activate a category first.","error");return;}
+ const options=cats.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("");
+ showModal(`<h2>Approve / Map Business Type</h2><p class="muted">Choose the parent category. This creates an active business type from the proposed name.</p>
+ <div class="field"><label>PROPOSED BUSINESS TYPE</label><input id="catProposedName" value="${esc(r.proposed_name||"")}" maxlength="120"></div>
+ <div class="field"><label>PARENT CATEGORY</label><select id="catParent">${options}</select></div>
+ <div class="field"><label>ADMIN NOTE (OPTIONAL)</label><textarea id="catAdminNote"></textarea></div>
+ <button class="btn btn-green" id="confirmCategoryApprove">Create Type & Approve</button>`);
+ $("confirmCategoryApprove").addEventListener("click",async()=>{
+  const name=$("catProposedName").value.trim(),categoryId=$("catParent").value,note=$("catAdminNote").value.trim();
+  if(!name){alert("Enter the business type name.");return;}
+  const slug=name.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+  const {data:existing,error:findError}=await db.from("business_types").select("id").eq("slug",slug).maybeSingle();
+  if(findError){setStatus("categoryStatus","Could not check existing type: "+findError.message,"error");return;}
+  let typeId=existing?.id;
+  if(!typeId){
+   const {data:newType,error:insertError}=await db.from("business_types").insert({category_id:categoryId,name,slug,is_active:true,search_keywords:r.normalized_name||name}).select("id").single();
+   if(insertError){setStatus("categoryStatus","Could not create business type: "+insertError.message,"error");return;}
+   typeId=newType.id;
   }
+  const {error:updateError}=await db.from("business_category_requests").update({status:"approved",final_business_type_id:typeId,admin_note:note||"Approved by Growvia Admin.",reviewed_by:currentUser.id,reviewed_at:new Date().toISOString()}).eq("id",id).eq("status","pending");
+  if(updateError){setStatus("categoryStatus","Type was saved but request update failed: "+updateError.message,"error");return;}
+  closeModal();setStatus("categoryStatus","Business type approved and linked to request.","success");await loadAll();
+ });
+}
+async function rejectCategoryRequest(id){
+ const r=categoryRequests.find(x=>x.id===id);if(!r||r.status!=="pending")return;
+ const note=prompt("Rejection reason / Admin note (optional):","");if(note===null)return;
+ const {error}=await db.from("business_category_requests").update({status:"rejected",admin_note:note.trim()||"Rejected by Growvia Admin.",reviewed_by:currentUser.id,reviewed_at:new Date().toISOString()}).eq("id",id).eq("status","pending");
+ if(error){setStatus("categoryStatus","Could not reject request: "+error.message,"error");return;}
+ setStatus("categoryStatus","Category request rejected.","success");await loadAll();
 }
 
-
-/* LOAD DESIGN LIBRARY */
-
-async function loadDesigns() {
-
-  const box = $('designCards');
-
-  adminReady = false;
-
-  box.textContent = 'Loading themes...';
-
-  showMessage('libraryStatus', '');
-
-  try {
-
-    const { data, error } = await db
-      .from('review_page_designs')
-      .select(`
-        id,
-        design_key,
-        design_name,
-        description,
-        design_config,
-        design_category,
-        target_businesses,
-        is_active,
-        is_premium,
-        display_order
-      `)
-      .order('display_order', { ascending: true });
-
-    if (error) {
-
-      box.textContent =
-        'Could not load themes: ' + error.message;
-
-      showMessage(
-        'authStatus',
-        'Library access failed. Confirm your Growvia Admin login and Supabase RLS policies.'
-      );
-
-      return;
-    }
-
-    adminReady = true;
-
-    box.replaceChildren();
-
-    if (!data || data.length === 0) {
-
-      box.textContent = 'No themes found in the library.';
-
-      showMessage(
-        'libraryStatus',
-        'Library loaded successfully. No designs are currently available.'
-      );
-
-      return;
-    }
-
-    data.forEach(design => {
-
-      const card = document.createElement('article');
-      card.className = 'design';
-
-      const preview = makePreview(design);
-
-      const meta = document.createElement('div');
-      meta.className = 'meta';
-
-      const name = document.createElement('strong');
-      name.textContent = design.design_name;
-
-      const details = document.createElement('p');
-
-      const category =
-        design.design_category === 'ladies'
-          ? 'Ladies Special'
-          : 'General';
-
-      const config = design.design_config || {};
-
-      details.textContent =
-        category +
-        ' · ' +
-        (config.font_label || 'Modern Font') +
-        ' · ' +
-        (config.layout_label || 'Business Layout');
-
-      const status = document.createElement('span');
-      status.className = 'pill';
-
-      status.textContent =
-        (design.is_active ? 'ACTIVE' : 'INACTIVE') +
-        ' · ' +
-        (design.is_premium ? 'PREMIUM' : 'STANDARD');
-
-      const actions = document.createElement('div');
-      actions.className = 'actions';
-
-      const activeButton = document.createElement('button');
-
-      activeButton.type = 'button';
-      activeButton.className =
-        design.is_active ? 'btn warn' : 'btn secondary';
-
-      activeButton.textContent =
-        design.is_active ? 'Deactivate' : 'Activate';
-
-      activeButton.addEventListener('click', () => {
-        updateDesign(design.id, {
-          is_active: !design.is_active
-        });
-      });
-
-      const premiumButton = document.createElement('button');
-
-      premiumButton.type = 'button';
-      premiumButton.className = 'btn secondary';
-
-      premiumButton.textContent =
-        design.is_premium ? 'Make Standard' : 'Make Premium';
-
-      premiumButton.addEventListener('click', () => {
-        updateDesign(design.id, {
-          is_premium: !design.is_premium
-        });
-      });
-
-      actions.append(activeButton, premiumButton);
-
-      meta.append(name, details, status, actions);
-
-      card.append(preview, meta);
-
-      box.append(card);
-    });
-
-    showMessage(
-      'authStatus',
-      'Signed in as: ' + (data && data.length >= 0 ? 'Growvia user' : '') +
-      '\nDesign Library loaded. Database permissions will control all changes.'
-    );
-
-    showMessage(
-      'libraryStatus',
-      data.length + ' themes loaded.'
-    );
-
-  } catch (error) {
-
-    box.textContent = 'Unexpected error: ' + error.message;
-  }
+function populateBusinessFilter(){
+ const select=$("suggestionBusiness"),current=select.value;select.replaceChildren();
+ const all=document.createElement("option");all.value="";all.textContent="All businesses";select.append(all);
+ businesses.forEach(b=>{const o=document.createElement("option");o.value=b.id;o.textContent=b.business_name||b.id;select.append(o);});
+ select.value=current;
 }
-
-
-/* UPDATE EXISTING DESIGN */
-
-async function updateDesign(id, patch) {
-
-  if (!adminReady || busy) return;
-
-  if (!confirm('Are you sure you want to update this theme?')) {
-    return;
-  }
-
-  busy = true;
-
-  showMessage('libraryStatus', 'Updating theme...');
-
-  try {
-
-    const { error } = await db
-      .from('review_page_designs')
-      .update({
-        ...patch,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', id);
-
-    if (error) {
-
-      showMessage(
-        'libraryStatus',
-        'Update failed: ' + error.message
-      );
-
-      return;
-    }
-
-    showMessage(
-      'libraryStatus',
-      'Theme updated successfully.'
-    );
-
-    await loadDesigns();
-
-  } catch (error) {
-
-    showMessage(
-      'libraryStatus',
-      'Error: ' + error.message
-    );
-
-  } finally {
-
-    busy = false;
-  }
+function renderSuggestions(){
+ const bid=$("suggestionBusiness").value,lang=$("suggestionLanguage").value,status=$("suggestionStatus").value,q=$("suggestionSearch").value.trim().toLowerCase();
+ const rows=suggestions.filter(s=>(!bid||s.business_id===bid)&&(lang==="all"||s.language===lang)&&(status==="all"||s.status===status)&&(!q||String(s.suggestion_text||"").toLowerCase().includes(q)));
+ if(!rows.length){$("suggestionsTable").innerHTML=noRows("No matching suggestions found.");return;}
+ $("suggestionsTable").innerHTML=tableShell(["SUGGESTION","BUSINESS","LANGUAGE","STATUS","ACTIONS"],rows.map(s=>{
+  const business=businesses.find(b=>b.id===s.business_id);
+  return `<tr><td style="min-width:280px">${esc(s.suggestion_text)}<span class="subline">Created: ${dateText(s.created_at)}</span></td><td>${esc(business?.business_name||s.business_id)}</td><td>${esc(s.language)}</td><td>${statusBadge(s.status)}</td><td><div class="actions">${s.status==="draft"?`<button class="btn btn-green" data-suggestion-active="${esc(s.id)}">Activate</button>`:""}${s.status!=="archived"?`<button class="btn btn-red" data-suggestion-archive="${esc(s.id)}">Archive</button>`:""}</div></td></tr>`;
+ }).join(""));
+ document.querySelectorAll("[data-suggestion-active]").forEach(b=>b.addEventListener("click",()=>setSuggestionStatus(b.dataset.suggestionActive,"active")));
+ document.querySelectorAll("[data-suggestion-archive]").forEach(b=>b.addEventListener("click",()=>setSuggestionStatus(b.dataset.suggestionArchive,"archived")));
 }
-
-
-/* ADD NEW THEME */
-
-$('designForm').addEventListener('submit', async function(event) {
-
-  event.preventDefault();
-
-  if (!adminReady) {
-
-    showMessage(
-      'formStatus',
-      'Design Library is not ready. Please sign in and refresh.'
-    );
-
-    return;
-  }
-
-  if (busy) return;
-
-  const key = $('designKey').value.trim().toLowerCase();
-
-  if (!/^[a-z0-9-]+$/.test(key)) {
-
-    showMessage(
-      'formStatus',
-      'Design key may contain only lowercase letters, numbers and hyphens.'
-    );
-
-    return;
-  }
-
-  const name = $('designName').value.trim();
-
-  if (!name) {
-
-    showMessage('formStatus', 'Please enter a design name.');
-
-    return;
-  }
-
-  const description = $('description').value.trim();
-
-  const font = $('font').value;
-
-  const config = {
-
-    style: $('style').value,
-
-    background: $('background').value,
-
-    accent: $('accent').value,
-
-    text: $('textColor').value,
-
-    page_background: $('pageBackground').value,
-
-    font: font,
-
-    heading_font: $('headingFont').value,
-
-    font_label:
-      $('fontLabel').value.trim() ||
-      (font === 'serif' ? 'Classic Serif' : 'Modern Sans'),
-
-    layout_label:
-      $('layoutLabel').value.trim() ||
-      'Custom Business Layout',
-
-    preview_title: 'Your Experience Matters',
-
-    preview_subtitle:
-      description || 'Share your genuine experience with us.',
-
-    radius: '18px',
-
-    card_radius: '14px'
-  };
-
-  const record = {
-
-    design_key: key,
-
-    design_name: name,
-
-    description: description,
-
-    design_config: config,
-
-    design_category: $('designCategory').value,
-
-    target_businesses: $('targets').value
-      .split(',')
-      .map(item => item.trim())
-      .filter(Boolean),
-
-    display_order: Number($('order').value) || 100,
-
-    is_premium: $('premium').checked,
-
-    is_active: $('active').checked
-  };
-
-  busy = true;
-
-  $('addButton').disabled = true;
-
-  showMessage('formStatus', 'Saving new theme...');
-
-  try {
-
-    const { error } = await db
-      .from('review_page_designs')
-      .insert(record);
-
-    if (error) {
-
-      showMessage(
-        'formStatus',
-        'Could not add theme: ' + error.message
-      );
-
-      return;
-    }
-
-    showMessage(
-      'formStatus',
-      'Theme added successfully!'
-    );
-
-    $('designForm').reset();
-
-    $('active').checked = true;
-
-    $('order').value = '100';
-
-    await loadDesigns();
-
-  } catch (error) {
-
-    showMessage(
-      'formStatus',
-      'Unexpected error: ' + error.message
-    );
-
-  } finally {
-
-    busy = false;
-
-    $('addButton').disabled = false;
-  }
-});
-
-
-/* REFRESH BUTTON */
-
-$('refreshButton').addEventListener('click', async function() {
-
-  if (busy) return;
-
-  await loadDesigns();
-});
-
-
-/* START */
-
-checkAdmin();
-
+async function setSuggestionStatus(id,status){
+ const {error}=await db.from("business_review_suggestions").update({status}).eq("id",id);
+ if(error){setStatus("suggestionStatusMsg","Could not update suggestion: "+error.message,"error");return;}
+ setStatus("suggestionStatusMsg","Suggestion status updated to "+status+".","success");await loadAll();
+}
+async function bulkSuggestionStatus(status){
+ const bid=$("suggestionBusiness").value,lang=$("suggestionLanguage").value,q=$("suggestionSearch").value.trim().toLowerCase();
+ const ids=suggestions.filter(s=>s.status==="draft"&&(!bid||s.business_id===bid)&&(lang==="all"||s.language===lang)&&(!q||String(s.suggestion_text||"").toLowerCase().includes(q))).map(s=>s.id);
+ if(!ids.length){setStatus("suggestionStatusMsg","No Draft suggestions match the current filters.","");return;}
+ if(!confirm(`${status==="active"?"Activate":"Archive"} ${ids.length} matching Draft suggestion(s)?`))return;
+ const {error}=await db.from("business_review_suggestions").update({status}).in("id",ids);
+ if(error){setStatus("suggestionStatusMsg","Bulk update failed: "+error.message,"error");return;}
+ setStatus("suggestionStatusMsg",`${ids.length} suggestion(s) updated to ${status}.`,"success");await loadAll();
+}
+function renderPendingSuggestions(){
+ if(!pendingSuggestions.length){$("pendingSuggestionsTable").innerHTML=noRows("No pending-request suggestions found.");return;}
+ const rows=pendingSuggestions.slice(0,100).map(s=>{
+  const req=businessRequests.find(r=>r.id===s.request_id);
+  return `<tr><td>${esc(s.suggestion_text)}</td><td>${esc(req?.business_name||s.request_id)}</td><td>${esc(s.language)}</td><td>${statusBadge(s.status)}</td></tr>`;
+ }).join("");
+ $("pendingSuggestionsTable").innerHTML=tableShell(["GENERATED SUGGESTION","BUSINESS REQUEST","LANGUAGE","STATUS"],rows);
+}
+function renderBusinesses(){
+ const q=$("businessSearch").value.trim().toLowerCase();
+ const rows=businesses.filter(b=>[b.business_name,b.category,b.phone,b.city].some(v=>String(v||"").toLowerCase().includes(q)));
+ if(!rows.length){$("businessesTable").innerHTML=noRows("No matching businesses found.");return;}
+ $("businessesTable").innerHTML=tableShell(["BUSINESS","CATEGORY","CONTACT","CREATED","REVIEW SUGGESTIONS"],rows.map(b=>{
+  const count=suggestions.filter(s=>s.business_id===b.id).length;
+  return `<tr><td><strong>${esc(b.business_name)}</strong><span class="subline">${esc(b.id)}</span></td><td>${esc(b.category||"—")}</td><td>${esc(b.phone||"—")}<span class="subline">${esc(b.email||"")}</span></td><td>${dateText(b.created_at)}</td><td>${count}</td></tr>`;
+ }).join(""));
+}
+["requestSearch","requestFilter"].forEach(id=>$(id).addEventListener("input",renderBusinessRequests));
+["categorySearch","categoryFilter"].forEach(id=>$(id).addEventListener("input",renderCategoryRequests));
+["suggestionBusiness","suggestionLanguage","suggestionStatus","suggestionSearch"].forEach(id=>$(id).addEventListener("input",renderSuggestions));
+$("businessSearch").addEventListener("input",renderBusinesses);
+$("activateFilteredBtn").addEventListener("click",()=>bulkSuggestionStatus("active"));
+$("archiveFilteredBtn").addEventListener("click",()=>bulkSuggestionStatus("archived"));
+$("refreshBtn").addEventListener("click",loadAll);
+$("logoutBtn").addEventListener("click",async()=>{await db.auth.signOut();window.location.replace("index.html");});
+
+(async function init(){
+ const ok=await verifyAdmin();if(!ok)return;
+ await loadAll();
+})();
 </script>
-
 </body>
 </html>
