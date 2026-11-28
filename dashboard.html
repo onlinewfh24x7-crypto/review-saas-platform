@@ -28,7 +28,7 @@
 .design-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
 .design-tab{border:1px solid var(--border);background:#fff;border-radius:20px;padding:8px 14px;font-size:10px;color:var(--text);cursor:pointer}
 .design-tab.active{background:var(--navy);color:white;border-color:var(--navy)}
-.design-status{font-size:11px;margin-top:12px;min-height:18px}
+.design-status{font-size:11px;margin-top:12px;min-height:18px}.service-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}.service-option{display:flex;align-items:flex-start;gap:8px;padding:10px;border:1px solid #E8ECF3;border-radius:8px;background:#FCFDFF;font-size:11px;line-height:1.4}.service-option input{width:auto;height:auto;margin:1px 0 0;flex:0 0 auto}.field-hint{font-size:10px;color:var(--muted);line-height:1.5;margin:6px 0 0}.inline-request{display:flex;gap:8px;align-items:center;margin-top:9px}.inline-request input{flex:1;min-width:0}.small-btn{border:0;border-radius:7px;padding:11px 13px;background:#EDF3FF;color:var(--blue);font-size:10px;font-weight:700;white-space:nowrap}.form-grid-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:500px){.service-options,.form-grid-two{grid-template-columns:1fr}.inline-request{flex-direction:column;align-items:stretch}}
 @media(max-width:900px){.design-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:500px){.design-gallery{grid-template-columns:1fr}}
 
@@ -58,9 +58,21 @@
     <div class="panel"><h3 id="formHeading">Business Profile</h3><p class="sub" id="formSub">Enter your business details to create your Growvia profile.</p>
       <form id="businessForm">
         <div class="form-group"><label for="businessName">BUSINESS NAME</label><input id="businessName" type="text" maxlength="100" placeholder="Your business name" required></div>
-        <div class="form-group"><label for="category">BUSINESS CATEGORY</label><select id="category" required><option value="">Select your category</option><option value="salon">Salon & Beauty</option><option value="restaurant">Restaurant & Cafe</option><option value="clinic">Clinic & Healthcare</option><option value="gym">Gym & Fitness</option><option value="hotel">Hotel & Travel</option><option value="retail">Retail & Shopping</option><option value="education">Education & Coaching</option><option value="automobile">Automobile Services</option><option value="general">Other / General Business</option></select></div>
-        <div class="form-group"><label for="phone">BUSINESS MOBILE NUMBER</label><input id="phone" type="tel" maxlength="20" placeholder="Enter contact number" required></div>
-        <div class="form-group"><label for="servicesProducts">SERVICES / PRODUCTS</label><textarea id="servicesProducts" maxlength="2000" rows="3" placeholder="List your services or products, separated by commas"></textarea></div>
+        <div class="form-group"><label for="category">BUSINESS CATEGORY</label><select id="category" required><option value="">Loading categories...</option></select></div>
+        <div class="form-group"><label for="businessType">BUSINESS TYPE</label><select id="businessType" required disabled><option value="">First select a category</option></select><p class="field-hint">Choose the closest matching business type. Services will load automatically.</p>
+          <div class="inline-request"><input id="newBusinessType" type="text" maxlength="100" placeholder="Business type not listed? Enter it here"><button class="small-btn" type="button" id="requestBusinessTypeBtn">Request Type</button></div><div class="status" id="categoryRequestMessage" role="status"></div>
+        </div>
+        <div class="form-grid-two">
+          <div class="form-group"><label for="phone">BUSINESS MOBILE NUMBER</label><input id="phone" type="tel" maxlength="20" placeholder="Enter contact number" required></div>
+          <div class="form-group"><label for="email">BUSINESS EMAIL</label><input id="email" type="email" maxlength="150" placeholder="Business email (optional)"></div>
+        </div>
+        <div class="form-grid-two">
+          <div class="form-group"><label for="address">BUSINESS ADDRESS</label><input id="address" type="text" maxlength="250" placeholder="Street / building / area"></div>
+          <div class="form-group"><label for="city">CITY</label><input id="city" type="text" maxlength="100" placeholder="City"></div>
+        </div>
+        <div class="form-group"><label>SELECT SERVICES / PRODUCTS</label><div id="serviceOptions" class="service-options"><div class="field-hint">Select a business type to load services.</div></div><p class="field-hint">Select all services that your business actually provides.</p></div>
+        <div class="form-group"><label for="servicesProducts">OTHER SERVICES / PRODUCTS (OPTIONAL)</label><textarea id="servicesProducts" maxlength="2000" rows="2" placeholder="Add services or products not listed above, separated by commas"></textarea></div>
+        <div class="form-group"><label for="googleBusinessUrl">GOOGLE BUSINESS PROFILE / MAPS LINK</label><input id="googleBusinessUrl" type="url" maxlength="1000" placeholder="Paste your Google Maps or Business Profile link"><p class="field-hint">This link is used as a reference for your business information. It is not an automatic Google API connection.</p></div>
         <div class="form-group"><label for="businessSpeciality">BUSINESS SPECIALITY</label><textarea id="businessSpeciality" maxlength="1500" rows="3" placeholder="What makes your business special? (Optional)"></textarea></div>
         <div class="form-group"><label for="additionalInfo">ADDITIONAL BUSINESS INFORMATION</label><textarea id="additionalInfo" maxlength="4000" rows="5" placeholder="Tell us more about your business, customers, service process, facilities, or anything important for personalized review suggestions. (Optional)"></textarea></div>
         <button class="primary-btn" id="saveBtn" type="submit">Save Business Profile →</button><div class="status" id="message" role="status"></div>
@@ -96,12 +108,82 @@ const SUPABASE_KEY="sb_publishable_X_Li2kPRPtqU7MeLqOSUpg_iCGLLpi1";
 const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 let currentUser=null,businessId=null,businesses=[],currentReviewPageSlug=null;
 let availableDesigns=[];
+let businessCategories=[],businessTypes=[],businessServices=[];
+let selectedServiceNames=[];
 let selectedDesignKey="classic-premium";
 let designFilter="all";
 const $=id=>document.getElementById(id);
 function showMessage(text,type){$("message").textContent=text;$("message").className="status "+(type||"");}
-function categoryValue(value){const v=String(value||"").trim().toLowerCase();const map={"salon":"salon","salon & beauty":"salon","restaurant":"restaurant","restaurant & cafe":"restaurant","clinic":"clinic","clinic & healthcare":"clinic","gym":"gym","gym & fitness":"gym","hotel":"hotel","hotel & travel":"hotel","retail":"retail","retail & shopping":"retail","education":"education","education & coaching":"education","automobile":"automobile","automobile services":"automobile","other":"general","general":"general"};return map[v]||"general";}
-function categoryLabel(value){const labels={salon:"Salon & Beauty",restaurant:"Restaurant & Cafe",clinic:"Clinic & Healthcare",gym:"Gym & Fitness",hotel:"Hotel & Travel",retail:"Retail & Shopping",education:"Education & Coaching",automobile:"Automobile Services",general:"Other / General Business"};return labels[categoryValue(value)]||labels.general;}
+function categoryValue(value){return String(value||"").trim().toLowerCase()||"general";}
+function categoryLabel(value){const found=businessCategories.find(c=>c.slug===value||c.id===value);return found?found.name:(String(value||"Other / General Business"));}
+async function loadBusinessTaxonomy(){
+  const cat=$("category"),type=$("businessType");
+  cat.innerHTML='<option value="">Loading categories...</option>';
+  const {data:cats,error:catError}=await client.from("business_categories").select("id,name,slug,is_active,sort_order").eq("is_active",true).order("sort_order",{ascending:true}).order("name",{ascending:true});
+  if(catError){cat.innerHTML='<option value="">Could not load categories</option>';showMessage("Business categories could not be loaded: "+catError.message,"error");return;}
+  businessCategories=cats||[];
+  cat.replaceChildren(new Option("Select a category",""));
+  businessCategories.forEach(c=>cat.add(new Option(c.name,c.slug||c.id)));
+  type.innerHTML='<option value="">First select a category</option>';type.disabled=true;
+  const {data:types,error:typeError}=await client.from("business_types").select("id,category_id,name,slug,is_active,search_keywords").eq("is_active",true).order("name",{ascending:true});
+  if(typeError){showMessage("Business types could not be loaded: "+typeError.message,"error");return;}
+  businessTypes=types||[];
+  const {data:services,error:serviceError}=await client.from("business_services").select("id,business_type_id,service_name,is_active").eq("is_active",true).order("service_name",{ascending:true});
+  if(serviceError){showMessage("Business services could not be loaded: "+serviceError.message,"error");return;}
+  businessServices=services||[];
+}
+function selectedCategoryRecord(){
+  const value=$("category").value;
+  return businessCategories.find(c=>c.slug===value||c.id===value)||null;
+}
+function loadBusinessTypesForCategory(selectedTypeId=null){
+  const cat=selectedCategoryRecord(),type=$("businessType");
+  type.replaceChildren();
+  if(!cat){type.add(new Option("First select a category",""));type.disabled=true;renderServiceOptions([]);return;}
+  const list=businessTypes.filter(t=>t.category_id===cat.id);
+  type.add(new Option(list.length?"Select business type":"No business types listed yet",""));
+  list.forEach(t=>type.add(new Option(t.name,t.id)));
+  type.disabled=false;
+  if(selectedTypeId&&list.some(t=>t.id===selectedTypeId))type.value=selectedTypeId;
+  if(type.value)loadServicesForType(type.value);else renderServiceOptions([]);
+}
+function renderServiceOptions(typeId){
+  const wrap=$("serviceOptions");wrap.replaceChildren();
+  const list=businessServices.filter(s=>s.business_type_id===typeId);
+  if(!typeId){wrap.textContent="Select a business type to load services.";return;}
+  if(!list.length){wrap.textContent="No predefined services are listed for this business type yet. Add your services in the Other Services box below.";return;}
+  list.forEach(service=>{
+    const label=document.createElement("label");label.className="service-option";
+    const check=document.createElement("input");check.type="checkbox";check.value=service.service_name;check.checked=selectedServiceNames.includes(service.service_name);
+    check.addEventListener("change",()=>{if(check.checked){if(!selectedServiceNames.includes(check.value))selectedServiceNames.push(check.value);}else selectedServiceNames=selectedServiceNames.filter(x=>x!==check.value);});
+    const span=document.createElement("span");span.textContent=service.service_name;label.append(check,span);wrap.append(label);
+  });
+}
+function loadServicesForType(typeId){selectedServiceNames=[];renderServiceOptions(typeId);}
+function getAllServicesValue(){
+  const extra=$("servicesProducts").value.trim();
+  return [...selectedServiceNames,...(extra?[extra]:[])].join(", ");
+}
+function setServicesFromBusiness(value,typeId){
+  const all=String(value||"").split(",").map(x=>x.trim()).filter(Boolean);
+  const listed=businessServices.filter(s=>s.business_type_id===typeId).map(s=>s.service_name);
+  selectedServiceNames=all.filter(x=>listed.includes(x));
+  $("servicesProducts").value=all.filter(x=>!listed.includes(x)).join(", ");
+  renderServiceOptions(typeId);
+}
+async function requestNewBusinessType(){
+  const name=$("newBusinessType").value.trim(),cat=selectedCategoryRecord(),msg=$("categoryRequestMessage"),btn=$("requestBusinessTypeBtn");
+  if(!name){msg.textContent="Please enter the missing business type.";msg.className="status error";return;}
+  if(!cat){msg.textContent="Please select a business category first.";msg.className="status error";return;}
+  btn.disabled=true;msg.textContent="Submitting request...";msg.className="status";
+  try{
+    const normalized=name.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+    const {error}=await client.from("business_category_requests").insert({requested_by:currentUser.id,proposed_name:name,normalized_name:normalized,status:"pending"});
+    if(error)throw error;
+    msg.textContent="Business type request submitted. Growvia Admin will review it.";msg.className="status success";$("newBusinessType").value="";
+  }catch(e){msg.textContent="Could not submit request: "+(e.message||"Unknown error");msg.className="status error";}
+  finally{btn.disabled=false;}
+}
 function makeSlug(name,id){const base=String(name||"business").toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"business";return base+"-"+String(id).slice(0,8);}
 function getPublicReviewUrl(slug){const url=new URL("review.html",window.location.href);url.searchParams.set("slug",slug);return url.toString();}
 function showPublicLink(slug){const box=$("publicReviewLink");if(!slug){box.style.display="none";box.replaceChildren();return;}const url=getPublicReviewUrl(slug);box.style.display="block";box.replaceChildren();const label=document.createElement("strong");label.textContent="Your public review page link: ";const link=document.createElement("a");link.href=url;link.target="_blank";link.rel="noopener";link.textContent=url;box.append(label,document.createElement("br"),link);}
@@ -152,11 +234,33 @@ document.querySelectorAll("[data-design-filter]").forEach(button=>button.addEven
 
 $("reviewPageForm").addEventListener("submit",async event=>{event.preventDefault();if(!businessId){$("reviewPageMessage").textContent="Please select a business first.";$("reviewPageMessage").className="status error";return;}const button=$("saveReviewPageBtn");button.disabled=true;$("reviewPageMessage").textContent="Saving review page settings...";$("reviewPageMessage").className="status";const googleUrl=$("googleReviewUrl").value.trim();if(googleUrl){try{const parsed=new URL(googleUrl);if(!["https:","http:"].includes(parsed.protocol))throw new Error();}catch(e){$("reviewPageMessage").textContent="Please enter a valid Google Review URL.";$("reviewPageMessage").className="status error";button.disabled=false;return;}}const slug=currentReviewPageSlug||makeSlug($("businessName").value,businessId);const settings={business_id:businessId,slug,page_title:$("pageTitle").value.trim(),welcome_message:$("welcomeMessage").value.trim(),google_review_url:googleUrl||null,theme_color:$("themeColor").value,is_published:$("pagePublished").checked,selected_design_key:selectedDesignKey||"classic-premium"};const {error}=await client.from("review_pages").upsert(settings,{onConflict:"business_id"});if(error){$("reviewPageMessage").textContent="Save failed: "+error.message;$("reviewPageMessage").className="status error";}else{currentReviewPageSlug=slug;$("reviewPageStatus").textContent=settings.is_published?"Published":"Unpublished";$("reviewPageMessage").textContent="Review page settings saved successfully!";$("reviewPageMessage").className="status success";showPublicLink(slug);await loadDesignLibrary();}button.disabled=false;});
 function renderBusinessSelector(){const selector=$("businessSelector");selector.replaceChildren();const placeholder=document.createElement("option");placeholder.value="";placeholder.textContent=businesses.length?"Select a business":"No approved businesses yet";selector.append(placeholder);businesses.forEach(business=>{const option=document.createElement("option");option.value=business.id;option.textContent=business.business_name||"Unnamed Business";selector.append(option);});selector.value=businessId||"";}
-function displayBusiness(business){businessId=business.id;loadReviews(business.id);loadReviewPage(business.id);$("businessName").value=business.business_name||"";$("category").value=categoryValue(business.category);$("phone").value=business.phone||"";$("servicesProducts").value=business.services_products||"";$("businessSpeciality").value=business.business_speciality||"";$("additionalInfo").value=business.additional_info||"";$("profileStatus").textContent="Completed";$("formHeading").textContent="Business Profile";$("formSub").textContent="Update the details of your selected business.";$("saveBtn").textContent="Update Business Profile →";$("businessDetails").replaceChildren();const box=document.createElement("div");box.className="profile-box";const lines=[["Business",business.business_name],["Category",categoryLabel(business.category)],["Phone",business.phone||"Not added"],["Services / Products",business.services_products||"Not added"],["Business Speciality",business.business_speciality||"Not added"],["Additional Information",business.additional_info||"Not added"]];lines.forEach(([label,value],index)=>{const line=document.createElement("div");line.className=index===0?"profile-name":"profile-line";line.textContent=index===0?(value||"Unnamed Business"):label+": "+value;box.append(line);});$("businessDetails").append(box);$("businessSelector").value=business.id;showMessage("","");}
-function startNewBusiness(){businessId=null;currentReviewPageSlug=null;$("businessSelector").value="";$("businessName").value="";$("category").value="";$("phone").value="";$("servicesProducts").value="";$("businessSpeciality").value="";$("additionalInfo").value="";$("profileStatus").textContent="Approval Required";$("formHeading").textContent="Request New Business";$("formSub").textContent="Submit your business details for Growvia Admin approval. Your profile will be created after approval.";$("saveBtn").textContent="Submit Approval Request →";$("businessDetails").replaceChildren();const empty=document.createElement("div");empty.className="profile-empty";empty.textContent="New business profiles require Growvia Admin approval before activation.";$("businessDetails").append(empty);$("totalReviews").textContent="0";$("pendingReviews").textContent="0";$("averageRating").textContent="0.0 ★";$("reviewTotalTop").textContent="0";$("reviewsList").textContent="Select an approved business to view reviews.";$("pageTitle").value="Your Experience Matters";$("welcomeMessage").value="Thank you for choosing us. We would love to hear about your experience.";$("googleReviewUrl").value="";$("themeColor").value="#6B1F3A";$("pagePublished").checked=false;$("reviewPageStatus").textContent="Not Available";$("reviewPageMessage").textContent="A business must be approved before configuring its review page.";$("reviewPageMessage").className="status";showPublicLink(null);showMessage("Enter your new business details and submit an approval request.","");$("businessName").focus();}
-async function loadBusinesses(preferredId=null){$("businessDetails").textContent="Loading your business information...";const {data,error}=await client.from("businesses").select("id, business_name, category, phone, services_products, business_speciality, additional_info, created_at").eq("owner_user_id",currentUser.id).order("created_at",{ascending:false});if(error){$("businessDetails").textContent="Could not load profile: "+error.message;showMessage("Could not load businesses: "+error.message,"error");return;}businesses=data||[];if(!businesses.length){renderBusinessSelector();startNewBusiness();return;}const selected=businesses.find(b=>b.id===preferredId)||businesses[0];renderBusinessSelector();displayBusiness(selected);}
-$("businessForm").addEventListener("submit",async event=>{event.preventDefault();if(!currentUser)return;const saveBtn=$("saveBtn");saveBtn.disabled=true;showMessage("Processing your request...","");const business={owner_user_id:currentUser.id,business_name:$("businessName").value.trim(),category:$("category").value,phone:$("phone").value.trim(),services_products:$("servicesProducts").value.trim(),business_speciality:$("businessSpeciality").value.trim(),additional_info:$("additionalInfo").value.trim()};if(!business.business_name||!business.category||!business.phone){showMessage("Please complete all required business details.","error");saveBtn.disabled=false;return;}try{if(businessId){const {error}=await client.from("businesses").update({business_name:business.business_name,category:business.category,phone:business.phone,services_products:business.services_products,business_speciality:business.business_speciality,additional_info:business.additional_info}).eq("id",businessId).eq("owner_user_id",currentUser.id);if(error)throw error;await loadBusinesses(businessId);showMessage("Business profile updated successfully!","success");}else{const {error}=await client.from("business_profile_requests").insert({owner_user_id:currentUser.id,business_name:business.business_name,category:business.category,phone:business.phone,services_products:business.services_products,business_speciality:business.business_speciality,additional_info:business.additional_info,status:"pending"});if(error)throw error;showMessage("Business approval request submitted successfully! Your profile will be created after Growvia Admin approval.","success");$("businessName").value="";$("category").value="";$("phone").value="";$("servicesProducts").value="";$("businessSpeciality").value="";$("additionalInfo").value="";$("formHeading").textContent="Request Submitted";$("formSub").textContent="Your new business is waiting for Admin approval.";saveBtn.textContent="Submit Another Request";}}catch(error){showMessage("Request could not be completed: "+(error.message||"Unknown error"),"error");}finally{saveBtn.disabled=false;}});
-async function initDashboard(){const {data,error}=await client.auth.getUser();if(error||!data.user){window.location.replace("index.html");return;}currentUser=data.user;$("userEmail").textContent=currentUser.email||"Growvia User";$("avatar").textContent=(currentUser.email||"G").charAt(0).toUpperCase();$("todayDate").textContent=new Date().toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"});await loadBusinesses();}
+function displayBusiness(business){businessId=business.id;loadReviews(business.id);loadReviewPage(business.id);$("businessName").value=business.business_name||"";$("category").value=categoryValue(business.category);loadBusinessTypesForCategory(business.business_type_id||null);$("phone").value=business.phone||"";$("email").value=business.email||"";$("address").value=business.address||"";$("city").value=business.city||"";$("googleBusinessUrl").value=business.google_business_url||"";setServicesFromBusiness(business.services_products||"",business.business_type_id||"");$("businessSpeciality").value=business.business_speciality||"";$("additionalInfo").value=business.additional_info||"";$("profileStatus").textContent="Completed";$("formHeading").textContent="Business Profile";$("formSub").textContent="Update the details of your selected business.";$("saveBtn").textContent="Update Business Profile →";$("businessDetails").replaceChildren();const box=document.createElement("div");box.className="profile-box";const typeName=businessTypes.find(t=>t.id===business.business_type_id)?.name||"Not selected";const lines=[["Business",business.business_name],["Category",categoryLabel(business.category)],["Business Type",typeName],["Phone",business.phone||"Not added"],["Email",business.email||"Not added"],["Address",business.address||"Not added"],["City",business.city||"Not added"],["Services / Products",business.services_products||"Not added"],["Google Business Link",business.google_business_url||"Not added"],["Business Speciality",business.business_speciality||"Not added"],["Additional Information",business.additional_info||"Not added"]];lines.forEach(([label,value],index)=>{const line=document.createElement("div");line.className=index===0?"profile-name":"profile-line";line.textContent=index===0?(value||"Unnamed Business"):label+": "+value;box.append(line);});$("businessDetails").append(box);$("businessSelector").value=business.id;showMessage("","");}
+function startNewBusiness(){businessId=null;currentReviewPageSlug=null;selectedServiceNames=[];$("businessSelector").value="";$("businessName").value="";$("category").value="";$("businessType").value="";$("businessType").disabled=true;renderServiceOptions("");$("phone").value="";$("email").value="";$("address").value="";$("city").value="";$("googleBusinessUrl").value="";$("servicesProducts").value="";$("businessSpeciality").value="";$("additionalInfo").value="";$("profileStatus").textContent="Approval Required";$("formHeading").textContent="Request New Business";$("formSub").textContent="Submit your business details for Growvia Admin approval. Your profile will be created after approval.";$("saveBtn").textContent="Submit Approval Request →";$("businessDetails").replaceChildren();const empty=document.createElement("div");empty.className="profile-empty";empty.textContent="New business profiles require Growvia Admin approval before activation.";$("businessDetails").append(empty);$("totalReviews").textContent="0";$("pendingReviews").textContent="0";$("averageRating").textContent="0.0 ★";$("reviewTotalTop").textContent="0";$("reviewsList").textContent="Select an approved business to view reviews.";$("pageTitle").value="Your Experience Matters";$("welcomeMessage").value="Thank you for choosing us. We would love to hear about your experience.";$("googleReviewUrl").value="";$("themeColor").value="#6B1F3A";$("pagePublished").checked=false;$("reviewPageStatus").textContent="Not Available";$("reviewPageMessage").textContent="A business must be approved before configuring its review page.";$("reviewPageMessage").className="status";showPublicLink(null);showMessage("Enter your new business details and submit an approval request.","");$("businessName").focus();}
+async function loadBusinesses(preferredId=null){$("businessDetails").textContent="Loading your business information...";const {data,error}=await client.from("businesses").select("id, business_name, category, business_type_id, phone, email, address, city, logo_url, google_business_url, services_products, business_speciality, additional_info, created_at").eq("owner_user_id",currentUser.id).order("created_at",{ascending:false});if(error){$("businessDetails").textContent="Could not load profile: "+error.message;showMessage("Could not load businesses: "+error.message,"error");return;}businesses=data||[];if(!businesses.length){renderBusinessSelector();startNewBusiness();return;}const selected=businesses.find(b=>b.id===preferredId)||businesses[0];renderBusinessSelector();displayBusiness(selected);}
+$("businessForm").addEventListener("submit",async event=>{
+ event.preventDefault();if(!currentUser)return;
+ const saveBtn=$("saveBtn");saveBtn.disabled=true;showMessage("Processing your request...","");
+ const typeId=$("businessType").value||null,cat=selectedCategoryRecord();
+ const business={owner_user_id:currentUser.id,business_name:$("businessName").value.trim(),category:cat?(cat.slug||cat.name.toLowerCase()):"",business_type_id:typeId,phone:$("phone").value.trim(),email:$("email").value.trim()||null,address:$("address").value.trim()||null,city:$("city").value.trim()||null,google_business_url:$("googleBusinessUrl").value.trim()||null,services_products:getAllServicesValue(),business_speciality:$("businessSpeciality").value.trim(),additional_info:$("additionalInfo").value.trim()};
+ if(!business.business_name||!business.category||!business.phone||!business.business_type_id){showMessage("Please enter Business Name, Category, Business Type and Mobile Number.","error");saveBtn.disabled=false;return;}
+ if(business.google_business_url){try{const u=new URL(business.google_business_url);if(!["https:","http:"].includes(u.protocol))throw new Error();}catch(e){showMessage("Please enter a valid Google Business Profile / Maps URL.","error");saveBtn.disabled=false;return;}}
+ try{
+  if(businessId){
+   const {error}=await client.from("businesses").update({business_name:business.business_name,category:business.category,business_type_id:business.business_type_id,phone:business.phone,email:business.email,address:business.address,city:business.city,google_business_url:business.google_business_url,services_products:business.services_products,business_speciality:business.business_speciality,additional_info:business.additional_info}).eq("id",businessId).eq("owner_user_id",currentUser.id);
+   if(error)throw error;await loadBusinesses(businessId);showMessage("Business profile updated successfully!","success");
+  }else{
+   const {error}=await client.from("business_profile_requests").insert({owner_user_id:currentUser.id,business_name:business.business_name,category:business.category,business_type_id:business.business_type_id,phone:business.phone,email:business.email,address:business.address,city:business.city,google_business_url:business.google_business_url,services_products:business.services_products,business_speciality:business.business_speciality,additional_info:business.additional_info,status:"pending"});
+   if(error)throw error;
+   showMessage("Business approval request submitted successfully! Your profile will be created after Growvia Admin approval.","success");
+   startNewBusiness();$("formHeading").textContent="Request Submitted";$("formSub").textContent="Your new business is waiting for Admin approval.";saveBtn.textContent="Submit Another Request";
+  }
+ }catch(error){showMessage("Request could not be completed: "+(error.message||"Unknown error"),"error");}
+ finally{saveBtn.disabled=false;}
+});
+async function initDashboard(){const {data,error}=await client.auth.getUser();if(error||!data.user){window.location.replace("index.html");return;}currentUser=data.user;$("userEmail").textContent=currentUser.email||"Growvia User";$("avatar").textContent=(currentUser.email||"G").charAt(0).toUpperCase();$("todayDate").textContent=new Date().toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"});await loadBusinessTaxonomy();await loadBusinesses();}
+$("category").addEventListener("change",()=>loadBusinessTypesForCategory());
+$("businessType").addEventListener("change",()=>loadServicesForType($("businessType").value));
+$("requestBusinessTypeBtn").addEventListener("click",requestNewBusinessType);
 $("businessSelector").addEventListener("change",()=>{const selectedId=$("businessSelector").value;if(!selectedId)return;const selected=businesses.find(b=>b.id===selectedId);if(selected)displayBusiness(selected);});
 $("addBusinessBtn").addEventListener("click",startNewBusiness);
 $("logoutBtn").addEventListener("click",async()=>{const {error}=await client.auth.signOut();if(!error)window.location.replace("index.html");});
